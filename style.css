@@ -1,4 +1,6 @@
-/* ===== RESET & BASE ===== */
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
 *,
 *::before,
 *::after {
@@ -64,7 +66,9 @@ select {
     font-family: inherit;
 }
 
-/* ===== SIDEBAR ===== */
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 .sidebar {
     position: fixed;
     top: 0;
@@ -184,7 +188,9 @@ select {
     color: var(--gray-700);
 }
 
-/* ===== OVERLAY ===== */
+/* ============================================================
+   OVERLAY
+   ============================================================ */
 .overlay {
     position: fixed;
     inset: 0;
@@ -200,7 +206,9 @@ select {
     pointer-events: all;
 }
 
-/* ===== MAIN CONTENT ===== */
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
 .main-content {
     flex: 1;
     display: flex;
@@ -215,7 +223,9 @@ select {
     }
 }
 
-/* ===== TOPBAR ===== */
+/* ============================================================
+   TOPBAR
+   ============================================================ */
 .topbar {
     background: white;
     padding: 0.75rem 1.5rem;
@@ -285,7 +295,9 @@ select {
     border: 2px solid white;
 }
 
-/* ===== PAGE CONTAINER ===== */
+/* ============================================================
+   PAGE CONTAINER & SECTIONS
+   ============================================================ */
 .page-container {
     flex: 1;
     padding: 1.5rem;
@@ -312,9 +324,11 @@ select {
     }
 }
 
-/* ===== STATS GRID ===== */
+/* ============================================================
+   STATS GRID (global)
+   ============================================================ */
 .stats-grid,
-.fee-stats-grid {
+.fee-analytics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
@@ -358,12 +372,9 @@ select {
     margin-top: 0.25rem;
 }
 
-.stat-card .stat-icon {
-    align-self: flex-end;
-    color: var(--primary-light);
-}
-
-/* ===== DASHBOARD GRID ===== */
+/* ============================================================
+   DASHBOARD GRID
+   ============================================================ */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -479,7 +490,9 @@ select {
     transform: scale(1.1);
 }
 
-/* ===== TOOLBAR ===== */
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
 .page-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -543,9 +556,41 @@ select {
 .toolbar-right {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
 }
 
-/* ===== BUTTONS ===== */
+/* Export buttons */
+.export-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    background: white;
+    border: 1px solid var(--gray-200);
+    color: var(--gray-600);
+    transition: all var(--transition);
+}
+
+.btn-export:hover {
+    background: var(--gray-100);
+    border-color: var(--gray-400);
+    transform: scale(1.02);
+}
+
+.btn-export svg {
+    stroke: currentColor;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -596,7 +641,9 @@ select {
     font-size: 0.75rem;
 }
 
-/* ===== TABLES ===== */
+/* ============================================================
+   TABLES
+   ============================================================ */
 .table-wrapper {
     overflow-x: auto;
     background: white;
@@ -633,6 +680,7 @@ select {
 .data-table .actions-cell {
     display: flex;
     gap: 0.25rem;
+    flex-wrap: wrap;
 }
 
 .btn-edit,
@@ -701,7 +749,9 @@ select {
     color: #991b1b;
 }
 
-/* ===== MODAL ===== */
+/* ============================================================
+   MODAL
+   ============================================================ */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -795,7 +845,9 @@ select {
     border-top: 1px solid var(--gray-200);
 }
 
-/* ===== TOAST ===== */
+/* ============================================================
+   TOAST
+   ============================================================ */
 .toast-container {
     position: fixed;
     bottom: 1.5rem;
@@ -843,7 +895,9 @@ select {
     }
 }
 
-/* ===== LOADING ===== */
+/* ============================================================
+   LOADING
+   ============================================================ */
 .loading-overlay {
     position: fixed;
     inset: 0;
@@ -877,97 +931,117 @@ select {
     }
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 640px) {
-    .page-container {
-        padding: 1rem;
-    }
-
-    .stats-grid,
-    .fee-stats-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .quick-actions-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .toolbar-left {
-        width: 100%;
-    }
-
-    .search-wrapper input {
-        width: 100%;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 0.5rem 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    .modal {
-        width: 96%;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-grid,
-    .fee-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .quick-actions-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-/*-------------salary-----*/
-.stats-grid,
-.fee-stats-grid,
-.salary-stats-grid {
+/* ============================================================
+   FEE MANAGEMENT UPGRADE (analytics, filters, search, detail)
+   ============================================================ */
+.fee-analytics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+#feeStudentDetail {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
-/* Export buttons */
-.export-buttons {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: 0.5rem;
+
+#feeStudentDetail .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.5rem 2rem;
 }
 
-.btn-export {
-    display: inline-flex;
+#feeStudentDetail .detail-grid .label {
+    font-weight: 600;
+    color: var(--gray-500);
+    font-size: 0.85rem;
+}
+
+#feeStudentDetail .detail-grid .value {
+    font-weight: 500;
+    color: var(--gray-800);
+}
+
+#feeStudentDetail .student-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gray-600);
+}
+
+#feeSearchSuggestions {
     background: white;
     border: 1px solid var(--gray-200);
-    color: var(--gray-600);
-    transition: all var(--transition);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    max-height: 200px;
+    overflow-y: auto;
 }
 
-.btn-export:hover {
-    background: var(--gray-100);
-    border-color: var(--gray-400);
-    transform: scale(1.02);
+#feeSearchSuggestions .suggestion-item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--gray-100);
 }
 
-.btn-export svg {
-    stroke: currentColor;
+#feeSearchSuggestions .suggestion-item:hover {
+    background: var(--gray-50);
 }
-/* ===== PRINT STYLES ===== */
+
+/* ============================================================
+   ANALYTICS CHARTS
+   ============================================================ */
+.chart-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+}
+
+/* ============================================================
+   PRINT STYLES (for receipts)
+   ============================================================ */
 @media print {
-    .sidebar, .topbar, .overlay, .modal-overlay, .modal-close,
-    .modal-footer, .toast-container, .loading-overlay, #menuToggle,
-    #notificationBtn, .nav-link, .page-toolbar, .btn-icon,
-    .sidebar-close, .user-badge, .dashboard-grid, .stats-grid,
-    .fee-stats-grid, .salary-stats-grid, .quick-actions,
-    .recent-activities, #pageContainer > *:not(#page-fees),
-    .data-table, .table-wrapper, #page-fees .page-toolbar,
-    #page-fees .fee-stats-grid, #page-fees .table-wrapper {
+    .sidebar,
+    .topbar,
+    .overlay,
+    .modal-overlay,
+    .modal-close,
+    .modal-footer,
+    .toast-container,
+    .loading-overlay,
+    #menuToggle,
+    #notificationBtn,
+    .nav-link,
+    .page-toolbar,
+    .btn-icon,
+    .sidebar-close,
+    .user-badge,
+    .dashboard-grid,
+    .stats-grid,
+    .fee-analytics-grid,
+    .quick-actions,
+    .recent-activities,
+    #pageContainer > *:not(#page-fees),
+    .data-table,
+    .table-wrapper,
+    #page-fees .page-toolbar,
+    #page-fees .fee-analytics-grid,
+    #page-fees .table-wrapper,
+    #feeStudentDetail,
+    .fee-filters,
+    .fee-search-bar,
+    .export-buttons {
         display: none !important;
     }
 
@@ -1140,5 +1214,49 @@ select {
         display: none !important;
     }
 }
-/*--fee--*/
-.fee-analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:.5rem}#feeStudentDetail{background:white;border-radius:var(--radius);border:1px solid var(--gray-200);padding:1.5rem;margin-bottom:1.5rem}#feeStudentDetail .detail-grid{display:grid;grid-template-columns:1fr 2fr;gap:.5rem 2rem}#feeStudentDetail .detail-grid .label{font-weight:600;color:var(--gray-500);font-size:.85rem}#feeStudentDetail .detail-grid .value{font-weight:500;color:var(--gray-800)}#feeStudentDetail .student-avatar{width:60px;height:60px;border-radius:50%;background:var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600;color:var(--gray-600)}#feeSearchSuggestions{background:white;border:1px solid var(--gray-200);border-top:none;border-radius:0 0 var(--radius) var(--radius);max-height:200px;overflow-y:auto}#feeSearchSuggestions .suggestion-item{padding:.5rem .75rem;cursor:pointer;font-size:.9rem;border-bottom:1px solid var(--gray-100)}#feeSearchSuggestions .suggestion-item:hover{background:var(--gray-50)}@media (max-width:768px){.fee-filters .filter-group{flex:1 1 100%!important}#feeStudentDetail .detail-grid{grid-template-columns:1fr}}
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+@media (max-width: 768px) {
+    .fee-filters .filter-group {
+        flex: 1 1 100% !important;
+    }
+    #feeStudentDetail .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    .stats-grid,
+    .fee-analytics-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .quick-actions-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .toolbar-left {
+        width: 100%;
+    }
+    .search-wrapper input {
+        width: 100%;
+    }
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    .modal {
+        width: 96%;
+    }
+    #page-analytics [style*="grid-template-columns: 1fr 1fr;"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid,
+    .fee-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+    .quick-actions-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
