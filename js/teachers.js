@@ -1,10 +1,13 @@
 // ============================================================
-// TEACHERS & STAFF – CRUD + Render
+// TEACHERS & STAFF – CRUD + Render + Conditional Logic
 // ============================================================
 
 import { createData, updateData, deleteData } from './firebase.js';
 
-// Render staff table
+// ============================================================
+// RENDER
+// ============================================================
+
 function renderStaff(filter = 'all', search = '') {
   const teachers = window.TEACHERS || [];
 
@@ -25,9 +28,9 @@ function renderStaff(filter = 'all', search = '') {
   }
   if (search.trim()) {
     const q = search.trim().toLowerCase();
-    list = list.filter(t => 
-      t.name.toLowerCase().includes(q) || 
-      t.subDepartment.toLowerCase().includes(q) || 
+    list = list.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.subDepartment.toLowerCase().includes(q) ||
       t.email.toLowerCase().includes(q)
     );
   }
@@ -58,7 +61,10 @@ function renderStaff(filter = 'all', search = '') {
   });
 }
 
-// Add Staff
+// ============================================================
+// ADD
+// ============================================================
+
 function showAddStaffModal() {
   const designationOptions = ['Principal', 'Head Master', 'Assistant Teacher', 'Subject Teacher', 'Administration', 'Staff', 'Peon']
     .map(d => `<option value="${d}">${d}</option>`).join('');
@@ -85,7 +91,8 @@ function showAddStaffModal() {
     const name = document.getElementById('addStaffName').value.trim();
     const role = document.getElementById('addStaffRole').value;
     const designation = document.getElementById('addStaffDesignation').value;
-    const subject = document.getElementById('addStaffSubject')?.value || 'N/A';
+    const subjectEl = document.getElementById('addStaffSubject');
+    const subject = subjectEl ? subjectEl.value : 'N/A';
     const email = document.getElementById('addStaffEmail').value.trim();
     if (!name || !email) {
       showToast('Please fill all fields', 'error');
@@ -102,17 +109,22 @@ function showAddStaffModal() {
 
   // Conditional logic for Subject Teacher
   setTimeout(() => {
-    const designation = document.getElementById('addStaffDesignation');
+    const designSelect = document.getElementById('addStaffDesignation');
     const subjectGroup = document.getElementById('addSubjectGroup');
-    if (designation && subjectGroup) {
-      designation.addEventListener('change', function() {
+    if (designSelect && subjectGroup) {
+      designSelect.addEventListener('change', function() {
         subjectGroup.style.display = this.value === 'Subject Teacher' ? 'block' : 'none';
       });
+      // Initial trigger
+      subjectGroup.style.display = designSelect.value === 'Subject Teacher' ? 'block' : 'none';
     }
   }, 50);
 }
 
-// Edit Staff
+// ============================================================
+// EDIT
+// ============================================================
+
 async function editStaff(id) {
   const staff = window.TEACHERS.find(t => t.id === id);
   if (!staff) return;
@@ -142,7 +154,7 @@ async function editStaff(id) {
     const name = document.getElementById('editStaffName').value.trim();
     const role = document.getElementById('editStaffRole').value;
     const designation = document.getElementById('editStaffDesignation').value;
-    const subject = document.getElementById('editStaffSubject')?.value || 'N/A';
+    const subject = document.getElementById('editStaffSubject') ? document.getElementById('editStaffSubject').value : 'N/A';
     const email = document.getElementById('editStaffEmail').value.trim();
     if (!name || !email) {
       showToast('Please fill all fields', 'error');
@@ -158,19 +170,23 @@ async function editStaff(id) {
     closeModal();
   });
 
-  // Conditional logic for Subject Teacher (edit)
+  // Conditional logic for edit form
   setTimeout(() => {
-    const designation = document.getElementById('editStaffDesignation');
+    const designSelect = document.getElementById('editStaffDesignation');
     const subjectGroup = document.getElementById('editSubjectGroup');
-    if (designation && subjectGroup) {
-      designation.addEventListener('change', function() {
+    if (designSelect && subjectGroup) {
+      designSelect.addEventListener('change', function() {
         subjectGroup.style.display = this.value === 'Subject Teacher' ? 'block' : 'none';
       });
+      subjectGroup.style.display = designSelect.value === 'Subject Teacher' ? 'block' : 'none';
     }
   }, 50);
 }
 
-// Delete Staff
+// ============================================================
+// DELETE
+// ============================================================
+
 async function deleteStaff(id) {
   if (!confirm('Delete this record?')) return;
   await deleteData('teachers', id);
@@ -180,7 +196,10 @@ async function deleteStaff(id) {
   renderDashboard();
 }
 
-// Event bindings
+// ============================================================
+// EVENT BINDINGS
+// ============================================================
+
 document.getElementById('addStaffBtn').addEventListener('click', showAddStaffModal);
 document.getElementById('staffSearch').addEventListener('input', (e) => {
   const filter = document.getElementById('staffFilter').value;
@@ -191,7 +210,10 @@ document.getElementById('staffFilter').addEventListener('change', (e) => {
   renderStaff(e.target.value, search);
 });
 
-// Expose
+// ============================================================
+// EXPOSE
+// ============================================================
+
 window.renderStaff = renderStaff;
 window.showAddStaffModal = showAddStaffModal;
 window.editStaff = editStaff;
