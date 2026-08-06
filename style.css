@@ -1164,3 +1164,185 @@ select {
         display: none !important;
     }
 }
+/* ===== PRINT STYLES ===== */
+@media print {
+    .sidebar, .topbar, .overlay, .modal-overlay, .modal-close,
+    .modal-footer, .toast-container, .loading-overlay, #menuToggle,
+    #notificationBtn, .nav-link, .page-toolbar, .btn-icon,
+    .sidebar-close, .user-badge, .dashboard-grid, .stats-grid,
+    .fee-stats-grid, .salary-stats-grid, .quick-actions,
+    .recent-activities, #pageContainer > *:not(#page-fees),
+    .data-table, .table-wrapper, #page-fees .page-toolbar,
+    #page-fees .fee-stats-grid, #page-fees .table-wrapper {
+        display: none !important;
+    }
+
+    .modal-overlay {
+        position: static !important;
+        background: white !important;
+        opacity: 1 !important;
+        pointer-events: none !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .modal {
+        position: static !important;
+        transform: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    .modal-header {
+        display: none !important;
+    }
+
+    .modal-body {
+        padding: 0 !important;
+    }
+
+    .receipt-wrapper {
+        padding: 12mm 10mm !important;
+        margin: 0 auto !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        background: white !important;
+        box-sizing: border-box !important;
+        font-size: 11pt !important;
+        line-height: 1.5 !important;
+    }
+
+    .receipt-wrapper .print-btn-wrap {
+        display: none !important;
+    }
+
+    .receipt-wrapper h2 {
+        font-size: 20pt !important;
+    }
+
+    .receipt-wrapper .receipt-details-grid {
+        background: #f8fafc !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    .receipt-wrapper .status-badge {
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    .receipt-wrapper .school-header {
+        border-bottom: 2px solid #3b82f6 !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .receipt-wrapper {
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+}
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+.receipt-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.receipt-wrapper .school-header {
+    text-align: center;
+    border-bottom: 2px solid #3b82f6;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.receipt-wrapper .school-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.receipt-wrapper .school-address {
+    font-size: 0.85rem;
+    color: #475569;
+    margin: 0.2rem 0;
+}
+
+.receipt-wrapper .school-contact {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0.2rem 0;
+}
+
+.receipt-wrapper .receipt-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+}
+
+.receipt-wrapper .receipt-title h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #334155;
+    margin: 0;
+}
+
+.receipt-wrapper .receipt-number {
+    font-size: 0.8rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+
+.receipt-wrapper .receipt-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.5rem;
+    background: #f8fafc;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.receipt-wrapper .receipt-footer {
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 0.5rem;
+    text-align: center;
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.receipt-wrapper .print-btn-wrap {
+    text-align: right;
+    margin-top: 0.75rem;
+}
+
+@media print {
+    .receipt-wrapper .print-btn-wrap {
+        display: none !important;
+    }
+}
