@@ -176,10 +176,31 @@ function init() {
             </p>
         `;
     }
+
+    // --- Button event listeners (no inline JS) ---
+    document.getElementById('printBtn').addEventListener('click', function() {
+        window.print();
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        // This opens print dialog; user can choose "Save as PDF"
+        window.print();
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', function() {
+        // Try to close the window; if not possible, fallback to history back
+        if (window.close) {
+            window.close();
+        } else {
+            // If window.close doesn't work, go back
+            window.history.back();
+        }
+    });
 }
 
-function downloadPDF() {
-    window.print();
+// Run on DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
 }
-
-init();
