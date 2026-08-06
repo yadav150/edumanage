@@ -932,15 +932,12 @@ function showAddFeeModal() {
 // SALARY MODULE
 // ============================================================
 
-function renderSalary(statusFilter = 'all', search = '', monthFilter = 'all') {
+function renderSalary(statusFilter = 'all', search = '') {
     const tbody = document.getElementById('salaryTableBody');
     let list = salaryRecords;
 
     if (statusFilter !== 'all') {
         list = list.filter(s => s.status === statusFilter);
-    }
-    if (monthFilter !== 'all') {
-        list = list.filter(s => s.month === monthFilter);
     }
     if (search.trim()) {
         const q = search.trim().toLowerCase();
@@ -1261,18 +1258,11 @@ document.getElementById('feeFilter').addEventListener('change', (e) => {
 // Salary search & filter
 document.getElementById('salarySearch').addEventListener('input', (e) => {
     const status = document.getElementById('salaryFilter').value;
-    const month = document.getElementById('salaryMonthFilter').value;
-    renderSalary(status, e.target.value, month);
+    renderSalary(status, e.target.value);
 });
 document.getElementById('salaryFilter').addEventListener('change', (e) => {
     const search = document.getElementById('salarySearch').value;
-    const month = document.getElementById('salaryMonthFilter').value;
-    renderSalary(e.target.value, search, month);
-});
-document.getElementById('salaryMonthFilter').addEventListener('change', (e) => {
-    const search = document.getElementById('salarySearch').value;
-    const status = document.getElementById('salaryFilter').value;
-    renderSalary(status, search, e.target.value);
+    renderSalary(e.target.value, search);
 });
 
 // ============================================================
