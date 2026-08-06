@@ -52,6 +52,12 @@
                         Fee Management
                     </a>
                 </li>
+                <li>
+                    <a href="#" class="nav-link" data-page="salary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2M2 12h4M18 12h4"/><rect x="4" y="8" width="16" height="8" rx="2"/></svg>
+                        Salary
+                    </a>
+                </li>
             </ul>
         </nav>
         <div class="sidebar-footer">
@@ -116,9 +122,9 @@
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                     Add Teacher
                                 </button>
-                                <button class="quick-action-btn" data-action="addStaff">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                    Add Staff
+                                <button class="quick-action-btn" data-action="addSalary">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2M2 12h4M18 12h4"/><rect x="4" y="8" width="16" height="8" rx="2"/></svg>
+                                    Add Salary
                                 </button>
                                 <button class="quick-action-btn" data-action="viewFees">
                                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
@@ -211,7 +217,8 @@
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Role</th>
-                                <th>Subject / Dept</th>
+                                <th>Designation</th>
+                                <th>Sub-Department</th>
                                 <th>Email</th>
                                 <th>Actions</th>
                             </tr>
@@ -268,6 +275,73 @@
                             </tr>
                         </thead>
                         <tbody id="feeTableBody">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== SALARY ===== -->
+            <section class="page-section" id="page-salary">
+                <div class="salary-stats-grid" id="salaryStatsGrid">
+                    <!-- Salary stats rendered by JS -->
+                </div>
+
+                <div class="page-toolbar">
+                    <div class="toolbar-left">
+                        <div class="search-wrapper">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="salarySearch" placeholder="Search by employee name..." aria-label="Search salary" />
+                        </div>
+                        <div class="filter-wrapper">
+                            <select id="salaryFilter" aria-label="Filter salary status">
+                                <option value="all">All Status</option>
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        <div class="filter-wrapper">
+                            <select id="salaryMonthFilter" aria-label="Filter by month">
+                                <option value="all">All Months</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" id="addSalaryBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Salary
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="data-table" id="salaryTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Employee</th>
+                                <th>Role</th>
+                                <th>Month</th>
+                                <th>Year</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salaryTableBody">
                             <!-- Rendered by JS -->
                         </tbody>
                     </table>
