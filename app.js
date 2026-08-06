@@ -52,6 +52,16 @@ let idCounter = {
     salary: 7,
 };
 
+// ===== SCHOOL INFORMATION (for receipts) =====
+const SCHOOL_INFO = {
+    name: 'Morning Glory English Academy',
+    address: 'Dikhlem Nepali Subba Gaon, West Karbi Anglong, Assam – 782248',
+    code: 'MGEA/2025/001',
+    phone: '+91 98765 43210',
+    email: 'info@mgea.edu.in',
+    website: 'www.mgea.edu.in'
+};
+
 // ============================================================
 // DOM REFS
 // ============================================================
@@ -773,27 +783,71 @@ function renderFees(filter = 'all', search = '') {
 function showReceipt(id) {
     const fee = feeRecords.find(f => f.id === id);
     if (!fee) return;
+
     const student = students.find(s => s.id === fee.studentId);
     const name = student ? student.name : 'Unknown';
+    const studentClass = student ? `${student.class}${student.section}` : 'N/A';
+
+    // Generate a unique receipt number
+    const receiptNumber = `RCP-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+    const date = new Date().toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+
+    const statusClass = fee.status === 'paid' ? 'status-paid' : (fee.status === 'pending' ? 'status-pending' : 'status-overdue');
+
     openModal('Fee Receipt', `
-        <div style="text-align:center; padding: 0.5rem 0;">
-            <h3 style="margin-bottom: 0.25rem;">SchoolERP</h3>
-            <p style="color: var(--gray-500); font-size: 0.875rem;">Fee Receipt</p>
-            <hr style="margin: 1rem 0; border: 1px dashed var(--gray-300);" />
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; text-align:left; font-size:0.9rem;">
-                <div><strong>Student:</strong> ${name}</div>
-                <div><strong>Class:</strong> ${student ? student.class + student.section : 'N/A'}</div>
-                <div><strong>Fee Type:</strong> ${fee.feeType}</div>
-                <div><strong>Amount:</strong> ₹${fee.amount}</div>
-                <div><strong>Paid:</strong> ₹${fee.paid}</div>
-                <div><strong>Pending:</strong> ₹${fee.pending}</div>
-                <div><strong>Status:</strong> <span class="status-badge status-${fee.status}">${fee.status}</span></div>
-                <div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
+        <div class="receipt-wrapper" style="font-family: 'Inter', sans-serif; padding: 0.25rem 0;">
+            <!-- School Header -->
+            <div style="text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0;">${SCHOOL_INFO.name}</h2>
+                <p style="font-size: 0.85rem; color: #475569; margin: 0.2rem 0;">${SCHOOL_INFO.address}</p>
+                <p style="font-size: 0.8rem; color: #64748b; margin: 0.2rem 0;">
+                    <strong>School Code:</strong> ${SCHOOL_INFO.code} &nbsp;|&nbsp;
+                    <strong>Phone:</strong> ${SCHOOL_INFO.phone} &nbsp;|&nbsp;
+                    <strong>Email:</strong> ${SCHOOL_INFO.email} &nbsp;|&nbsp;
+                    <strong>Web:</strong> ${SCHOOL_INFO.website}
+                </p>
             </div>
-            <hr style="margin: 1rem 0; border: 1px dashed var(--gray-300);" />
-            <p style="font-size:0.75rem; color:var(--gray-400);">This is a system-generated receipt.</p>
+
+            <!-- Receipt Title -->
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #334155; margin: 0;">Fee Receipt</h3>
+                <span style="font-size: 0.8rem; color: #64748b; background: #f1f5f9; padding: 0.2rem 0.6rem; border-radius: 4px;"># ${receiptNumber}</span>
+            </div>
+
+            <!-- Student & Fee Details -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; background: #f8fafc; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                <div><strong>Student:</strong> ${name}</div>
+                <div><strong>Class:</strong> ${studentClass}</div>
+                <div><strong>Fee Type:</strong> ${fee.feeType}</div>
+                <div><strong>Date:</strong> ${date}</div>
+                <div><strong>Amount:</strong> ₹${fee.amount.toLocaleString()}</div>
+                <div><strong>Paid:</strong> ₹${fee.paid.toLocaleString()}</div>
+                <div><strong>Pending:</strong> ₹${fee.pending.toLocaleString()}</div>
+                <div><strong>Status:</strong> <span class="status-badge ${statusClass}">${fee.status}</span></div>
+            </div>
+
+            <!-- Footer -->
+            <div style="border-top: 1px dashed #cbd5e1; padding-top: 0.5rem; text-align: center; font-size: 0.7rem; color: #94a3b8;">
+                This is a system‑generated receipt. No signature required.
+                <br />Thank you for your payment.
+            </div>
+
+            <!-- Print Button -->
+            <div style="text-align: right; margin-top: 0.75rem;">
+                <button onclick="window.print()" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.3rem 0.8rem;">
+                    Print Receipt
+                </button>
+            </div>
         </div>
-    `, 'Close', () => { closeModal(); });
+    `, 'Close', () => {
+        closeModal();
+    });
+
+    // Override the confirm button to just close (since we have a print button)
     modalConfirm.textContent = 'Close';
     modalCallback = () => { closeModal(); };
 }
