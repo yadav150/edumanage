@@ -11,11 +11,11 @@ let students = [
 ];
 
 let teachers = [
-    { id: 1, name: 'Dr. Anil Kumar', role: 'teacher', subject: 'Mathematics', email: 'anil@school.com' },
-    { id: 2, name: 'Mrs. Sunita Rao', role: 'teacher', subject: 'Science', email: 'sunita@school.com' },
-    { id: 3, name: 'Mr. Rajesh Gupta', role: 'staff', subject: 'Administration', email: 'rajesh@school.com' },
-    { id: 4, name: 'Ms. Priya Menon', role: 'teacher', subject: 'English', email: 'priya@school.com' },
-    { id: 5, name: 'Mr. Suresh Patel', role: 'staff', subject: 'Accounts', email: 'suresh@school.com' },
+    { id: 1, name: 'Dr. Anil Kumar', role: 'teacher', designation: 'Subject Teacher', subDepartment: 'Mathematics', email: 'anil@school.com' },
+    { id: 2, name: 'Mrs. Sunita Rao', role: 'teacher', designation: 'Subject Teacher', subDepartment: 'Science', email: 'sunita@school.com' },
+    { id: 3, name: 'Mr. Rajesh Gupta', role: 'staff', designation: 'Administration', subDepartment: 'N/A', email: 'rajesh@school.com' },
+    { id: 4, name: 'Ms. Priya Menon', role: 'teacher', designation: 'Assistant Teacher', subDepartment: 'English', email: 'priya@school.com' },
+    { id: 5, name: 'Mr. Suresh Patel', role: 'staff', designation: 'Staff', subDepartment: 'Accounts', email: 'suresh@school.com' },
 ];
 
 let feeRecords = [
@@ -90,6 +90,11 @@ function openModal(title, bodyHTML, confirmText = 'Confirm', callback) {
     modalConfirm.textContent = confirmText;
     modalCallback = callback;
     modalOverlay.classList.add('active');
+
+    // If this is the add teacher form, set up conditional logic after DOM render
+    if (title.includes('Teacher')) {
+        setTimeout(() => setupTeacherConditionalLogic(), 50);
+    }
 }
 
 function closeModal() {
@@ -108,24 +113,43 @@ function getStudentClass(id) {
 }
 
 // ============================================================
+// TEACHER CONDITIONAL LOGIC
+// ============================================================
+
+function setupTeacherConditionalLogic() {
+    const roleSelect = document.getElementById('addStaffRole');
+    const subjectGroup = document.getElementById('subjectGroup');
+    if (!roleSelect || !subjectGroup) return;
+
+    function toggleSubjectField() {
+        if (roleSelect.value === 'Subject Teacher') {
+            subjectGroup.style.display = 'block';
+            subjectGroup.style.animation = 'fadeIn 250ms ease';
+        } else {
+            subjectGroup.style.display = 'none';
+        }
+    }
+
+    roleSelect.addEventListener('change', toggleSubjectField);
+    toggleSubjectField();
+}
+
+// ============================================================
 // NAVIGATION
 // ============================================================
 
 function navigateTo(page) {
     currentPage = page;
-    // Update nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.toggle('active', link.dataset.page === page);
     });
 
-    // Show page section
     document.querySelectorAll('.page-section').forEach(section => {
         section.classList.remove('active');
     });
     const target = document.getElementById(`page-${page}`);
     if (target) target.classList.add('active');
 
-    // Update title
     const titles = {
         dashboard: 'Dashboard',
         students: 'Students',
@@ -134,7 +158,6 @@ function navigateTo(page) {
     };
     pageTitle.textContent = titles[page] || 'Dashboard';
 
-    // Render content for page
     switch (page) {
         case 'dashboard': renderDashboard(); break;
         case 'students': renderStudents(); break;
@@ -142,7 +165,6 @@ function navigateTo(page) {
         case 'fees': renderFees(); break;
     }
 
-    // Close sidebar on mobile
     if (window.innerWidth < 1024) {
         sidebar.classList.remove('open');
         overlay.classList.remove('active');
@@ -154,7 +176,6 @@ function navigateTo(page) {
 // ============================================================
 
 function renderDashboard() {
-    // Stats
     const totalStudents = students.length;
     const totalTeachers = teachers.filter(t => t.role === 'teacher').length;
     const totalStaff = teachers.filter(t => t.role === 'staff').length;
@@ -185,7 +206,6 @@ function renderDashboard() {
         </div>
     `;
 
-    // Recent activities
     const activityContainer = document.getElementById('recentActivities');
     activityContainer.innerHTML = activities.map(act => `
         <div class="activity-item">
@@ -231,7 +251,6 @@ function renderStudents(filter = 'all', search = '') {
         </tr>
     `).join('');
 
-    // Attach event listeners
     tbody.querySelectorAll('[data-action="editStudent"]').forEach(btn => {
         btn.addEventListener('click', () => editStudent(parseInt(btn.dataset.id)));
     });
@@ -243,6 +262,13 @@ function renderStudents(filter = 'all', search = '') {
 function editStudent(id) {
     const student = students.find(s => s.id === id);
     if (!student) return;
+
+    const classOptions = Array.from({ length: 12 }, (_, i) => i + 1)
+        .map(c => `<option value="${c}" ${c === student.class ? 'selected' : ''}>Class ${c}</option>`).join('');
+
+    const sectionOptions = ['A', 'B', 'C', 'NA']
+        .map(sec => `<option value="${sec}" ${sec === student.section ? 'selected' : ''}>${sec}</option>`).join('');
+
     openModal('Edit Student', `
         <div class="form-group">
             <label>Name</label>
@@ -250,11 +276,11 @@ function editStudent(id) {
         </div>
         <div class="form-group">
             <label>Class</label>
-            <input type="number" id="editStudentClass" value="${student.class}" min="1" max="12" />
+            <select id="editStudentClass">${classOptions}</select>
         </div>
         <div class="form-group">
             <label>Section</label>
-            <input type="text" id="editStudentSection" value="${student.section}" maxlength="1" />
+            <select id="editStudentSection">${sectionOptions}</select>
         </div>
         <div class="form-group">
             <label>Roll No</label>
@@ -271,10 +297,10 @@ function editStudent(id) {
     `, 'Update', () => {
         const name = document.getElementById('editStudentName').value.trim();
         const classVal = parseInt(document.getElementById('editStudentClass').value);
-        const section = document.getElementById('editStudentSection').value.trim().toUpperCase();
+        const section = document.getElementById('editStudentSection').value;
         const roll = parseInt(document.getElementById('editStudentRoll').value);
         const feeStatus = document.getElementById('editStudentFeeStatus').value;
-        if (!name || !classVal || !section || !roll) {
+        if (!name || !classVal || !roll) {
             showToast('Please fill all fields', 'error');
             return;
         }
@@ -300,8 +326,17 @@ function deleteStudent(id) {
     }
 }
 
-// Add student (via quick action or button)
+// ============================================================
+// ADD STUDENT - UPDATED with dropdowns
+// ============================================================
+
 function showAddStudentModal() {
+    const classOptions = Array.from({ length: 12 }, (_, i) => i + 1)
+        .map(c => `<option value="${c}">Class ${c}</option>`).join('');
+
+    const sectionOptions = ['A', 'B', 'C', 'NA']
+        .map(sec => `<option value="${sec}">${sec}</option>`).join('');
+
     openModal('Add Student', `
         <div class="form-group">
             <label>Name</label>
@@ -309,11 +344,11 @@ function showAddStudentModal() {
         </div>
         <div class="form-group">
             <label>Class</label>
-            <input type="number" id="addStudentClass" placeholder="Class (1-12)" min="1" max="12" />
+            <select id="addStudentClass">${classOptions}</select>
         </div>
         <div class="form-group">
             <label>Section</label>
-            <input type="text" id="addStudentSection" placeholder="A, B, C" maxlength="1" />
+            <select id="addStudentSection">${sectionOptions}</select>
         </div>
         <div class="form-group">
             <label>Roll No</label>
@@ -330,10 +365,10 @@ function showAddStudentModal() {
     `, 'Add Student', () => {
         const name = document.getElementById('addStudentName').value.trim();
         const classVal = parseInt(document.getElementById('addStudentClass').value);
-        const section = document.getElementById('addStudentSection').value.trim().toUpperCase();
+        const section = document.getElementById('addStudentSection').value;
         const roll = parseInt(document.getElementById('addStudentRoll').value);
         const feeStatus = document.getElementById('addStudentFeeStatus').value;
-        if (!name || !classVal || !section || !roll) {
+        if (!name || !classVal || !roll) {
             showToast('Please fill all fields', 'error');
             return;
         }
@@ -365,14 +400,15 @@ function renderStaff(filter = 'all', search = '') {
     }
     if (search.trim()) {
         const q = search.trim().toLowerCase();
-        list = list.filter(t => t.name.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q) || t.email.toLowerCase().includes(q));
+        list = list.filter(t => t.name.toLowerCase().includes(q) || t.subDepartment.toLowerCase().includes(q) || t.email.toLowerCase().includes(q));
     }
     tbody.innerHTML = list.map((t, idx) => `
         <tr>
             <td>${idx + 1}</td>
             <td>${t.name}</td>
             <td><span class="status-badge ${t.role === 'teacher' ? 'status-paid' : 'status-pending'}">${t.role}</span></td>
-            <td>${t.subject}</td>
+            <td>${t.designation}</td>
+            <td>${t.subDepartment}</td>
             <td>${t.email}</td>
             <td>
                 <div class="actions-cell">
@@ -394,6 +430,13 @@ function renderStaff(filter = 'all', search = '') {
 function editStaff(id) {
     const staff = teachers.find(t => t.id === id);
     if (!staff) return;
+
+    const designationOptions = ['Principal', 'Head Master', 'Assistant Teacher', 'Subject Teacher', 'Administration', 'Staff', 'Peon']
+        .map(d => `<option value="${d}" ${d === staff.designation ? 'selected' : ''}>${d}</option>`).join('');
+
+    const subjectOptions = ['Mathematics', 'Science', 'English', 'Hindi', 'Social Studies', 'Computer Science', 'Physical Education', 'Arts', 'Music', 'N/A']
+        .map(s => `<option value="${s}" ${s === staff.subDepartment ? 'selected' : ''}>${s}</option>`).join('');
+
     openModal('Edit Teacher / Staff', `
         <div class="form-group">
             <label>Name</label>
@@ -407,8 +450,12 @@ function editStaff(id) {
             </select>
         </div>
         <div class="form-group">
-            <label>Subject / Department</label>
-            <input type="text" id="editStaffSubject" value="${staff.subject}" />
+            <label>Designation</label>
+            <select id="editStaffDesignation">${designationOptions}</select>
+        </div>
+        <div class="form-group" id="editSubjectGroup" style="${staff.designation === 'Subject Teacher' ? 'display:block;' : 'display:none;'}">
+            <label>Subject</label>
+            <select id="editStaffSubject">${subjectOptions}</select>
         </div>
         <div class="form-group">
             <label>Email</label>
@@ -417,21 +464,38 @@ function editStaff(id) {
     `, 'Update', () => {
         const name = document.getElementById('editStaffName').value.trim();
         const role = document.getElementById('editStaffRole').value;
-        const subject = document.getElementById('editStaffSubject').value.trim();
+        const designation = document.getElementById('editStaffDesignation').value;
+        const subject = document.getElementById('editStaffSubject') ? document.getElementById('editStaffSubject').value : 'N/A';
         const email = document.getElementById('editStaffEmail').value.trim();
-        if (!name || !subject || !email) {
+        if (!name || !email) {
             showToast('Please fill all fields', 'error');
             return;
         }
         const idx = teachers.findIndex(t => t.id === id);
         if (idx !== -1) {
-            teachers[idx] = { ...teachers[idx], name, role, subject, email };
+            teachers[idx] = { ...teachers[idx], name, role, designation, subDepartment: subject, email };
             showToast('Updated successfully', 'success');
             renderStaff();
             renderDashboard();
             closeModal();
         }
     });
+
+    // Set up conditional logic for edit form
+    setTimeout(() => {
+        const roleSelect = document.getElementById('editStaffDesignation');
+        const subjectGroup = document.getElementById('editSubjectGroup');
+        if (roleSelect && subjectGroup) {
+            roleSelect.addEventListener('change', function() {
+                if (this.value === 'Subject Teacher') {
+                    subjectGroup.style.display = 'block';
+                    subjectGroup.style.animation = 'fadeIn 250ms ease';
+                } else {
+                    subjectGroup.style.display = 'none';
+                }
+            });
+        }
+    }, 50);
 }
 
 function deleteStaff(id) {
@@ -443,7 +507,17 @@ function deleteStaff(id) {
     }
 }
 
+// ============================================================
+// ADD TEACHER / STAFF - UPDATED with dropdowns & conditional logic
+// ============================================================
+
 function showAddStaffModal() {
+    const designationOptions = ['Principal', 'Head Master', 'Assistant Teacher', 'Subject Teacher', 'Administration', 'Staff', 'Peon']
+        .map(d => `<option value="${d}">${d}</option>`).join('');
+
+    const subjectOptions = ['Mathematics', 'Science', 'English', 'Hindi', 'Social Studies', 'Computer Science', 'Physical Education', 'Arts', 'Music', 'N/A']
+        .map(s => `<option value="${s}">${s}</option>`).join('');
+
     openModal('Add Teacher / Staff', `
         <div class="form-group">
             <label>Name</label>
@@ -457,8 +531,12 @@ function showAddStaffModal() {
             </select>
         </div>
         <div class="form-group">
-            <label>Subject / Department</label>
-            <input type="text" id="addStaffSubject" placeholder="e.g., Mathematics" />
+            <label>Designation</label>
+            <select id="addStaffDesignation">${designationOptions}</select>
+        </div>
+        <div class="form-group" id="subjectGroup" style="display:none;">
+            <label>Subject</label>
+            <select id="addStaffSubject">${subjectOptions}</select>
         </div>
         <div class="form-group">
             <label>Email</label>
@@ -467,9 +545,11 @@ function showAddStaffModal() {
     `, 'Add', () => {
         const name = document.getElementById('addStaffName').value.trim();
         const role = document.getElementById('addStaffRole').value;
-        const subject = document.getElementById('addStaffSubject').value.trim();
+        const designation = document.getElementById('addStaffDesignation').value;
+        const subjectEl = document.getElementById('addStaffSubject');
+        const subject = subjectEl ? subjectEl.value : 'N/A';
         const email = document.getElementById('addStaffEmail').value.trim();
-        if (!name || !subject || !email) {
+        if (!name || !email) {
             showToast('Please fill all fields', 'error');
             return;
         }
@@ -477,7 +557,8 @@ function showAddStaffModal() {
             id: idCounter.staff++,
             name,
             role,
-            subject,
+            designation,
+            subDepartment: subject,
             email,
         };
         teachers.push(newStaff);
@@ -535,7 +616,6 @@ function renderFees(filter = 'all', search = '') {
         btn.addEventListener('click', () => deleteFee(parseInt(btn.dataset.id)));
     });
 
-    // Fee stats
     const totalCollected = feeRecords.reduce((sum, f) => sum + f.paid, 0);
     const totalPending = feeRecords.reduce((sum, f) => sum + f.pending, 0);
     const overdue = feeRecords.filter(f => f.status === 'overdue').length;
@@ -579,7 +659,6 @@ function showReceipt(id) {
             <p style="font-size:0.75rem; color:var(--gray-400);">This is a system-generated receipt.</p>
         </div>
     `, 'Close', () => { closeModal(); });
-    // Override confirm to just close
     modalConfirm.textContent = 'Close';
     modalCallback = () => { closeModal(); };
 }
@@ -631,7 +710,6 @@ function editFee(id) {
         const idx = feeRecords.findIndex(f => f.id === id);
         if (idx !== -1) {
             feeRecords[idx] = { ...feeRecords[idx], studentId, feeType, amount, paid, pending, status };
-            // Update student's fee status if needed? We'll keep separate.
             showToast('Fee record updated', 'success');
             renderFees();
             renderDashboard();
@@ -712,7 +790,6 @@ function showAddFeeModal() {
 // EVENT BINDINGS
 // ============================================================
 
-// Sidebar toggle
 menuToggle.addEventListener('click', () => {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
@@ -728,7 +805,6 @@ overlay.addEventListener('click', () => {
     overlay.classList.remove('active');
 });
 
-// Navigation links
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -737,7 +813,6 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
-// Modal controls
 modalClose.addEventListener('click', closeModal);
 modalCancel.addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', (e) => {
@@ -747,7 +822,6 @@ modalConfirm.addEventListener('click', () => {
     if (modalCallback) modalCallback();
 });
 
-// Quick action buttons
 document.querySelectorAll('.quick-action-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const action = btn.dataset.action;
@@ -760,16 +834,10 @@ document.querySelectorAll('.quick-action-btn').forEach(btn => {
     });
 });
 
-// Add student button
 document.getElementById('addStudentBtn').addEventListener('click', showAddStudentModal);
-
-// Add staff button
 document.getElementById('addStaffBtn').addEventListener('click', showAddStaffModal);
-
-// Add fee button
 document.getElementById('addFeeBtn').addEventListener('click', showAddFeeModal);
 
-// Search and filter for students
 document.getElementById('studentSearch').addEventListener('input', (e) => {
     const filter = document.getElementById('studentFilter').value;
     renderStudents(filter, e.target.value);
@@ -779,7 +847,6 @@ document.getElementById('studentFilter').addEventListener('change', (e) => {
     renderStudents(e.target.value, search);
 });
 
-// Search and filter for staff
 document.getElementById('staffSearch').addEventListener('input', (e) => {
     const filter = document.getElementById('staffFilter').value;
     renderStaff(filter, e.target.value);
@@ -789,7 +856,6 @@ document.getElementById('staffFilter').addEventListener('change', (e) => {
     renderStaff(e.target.value, search);
 });
 
-// Search and filter for fees
 document.getElementById('feeSearch').addEventListener('input', (e) => {
     const filter = document.getElementById('feeFilter').value;
     renderFees(filter, e.target.value);
@@ -803,14 +869,12 @@ document.getElementById('feeFilter').addEventListener('change', (e) => {
 // INIT
 // ============================================================
 
-// Show loading for a moment then load default page
 showLoading(true);
 setTimeout(() => {
     showLoading(false);
     navigateTo('dashboard');
 }, 400);
 
-// Close sidebar on resize if becoming desktop
 window.addEventListener('resize', () => {
     if (window.innerWidth >= 1024) {
         sidebar.classList.remove('open');
