@@ -12,11 +12,10 @@
         <!-- Receipt content injected by receipt.js -->
     </div>
 
-    <!-- Action buttons (visible only on screen, hidden when printing) -->
     <div class="action-bar" id="actionBar">
-        <button class="btn btn-print" onclick="window.print()">Print</button>
-        <button class="btn btn-download" onclick="downloadPDF()">Download PDF</button>
-        <button class="btn btn-back" onclick="window.close()">Close</button>
+        <button class="btn btn-print" id="printBtn">Print</button>
+        <button class="btn btn-download" id="downloadBtn">Download PDF</button>
+        <button class="btn btn-back" id="closeBtn">Close</button>
     </div>
 
     <script src="receipt.js"></script>
