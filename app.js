@@ -873,120 +873,65 @@ function showReceipt(id) {
     };
 }
 // ============================================================
-// DOWNLOAD RECEIPT AS PDF
+// DOWNLOAD RECEIPT AS PDF (using html2canvas for exact match)
 // ============================================================
 
 function downloadReceiptPDF() {
     const data = window._receiptData;
     if (!data) return;
 
-    const { fee, student, name, studentClass, receiptNumber, date, statusClass } = data;
+    const { name } = data;
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = 210;
-    const margin = 15;
-    let y = 20;
+    // Get the receipt content element from the modal
+    const receiptElement = document.getElementById('receiptContent');
+    if (!receiptElement) {
+        showToast('Receipt content not found', 'error');
+        return;
+    }
 
-    // --- School Header ---
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 41, 59);
-    doc.text(SCHOOL_INFO.name, pageWidth / 2, y, { align: 'center' });
-    y += 7;
+    // Show loading
+    showToast('Generating PDF...', 'info');
 
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(71, 85, 105);
-    doc.text(SCHOOL_INFO.address, pageWidth / 2, y, { align: 'center' });
-    y += 5;
+    // Capture the receipt element as a canvas
+    html2canvas(receiptElement, {
+        scale: 2,                 // High quality
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: receiptElement.scrollWidth,
+        height: receiptElement.scrollHeight,
+        windowWidth: receiptElement.scrollWidth,
+        windowHeight: receiptElement.scrollHeight
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = 210; // A4 width in mm
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-    doc.text(`School Code: ${SCHOOL_INFO.code}  |  Phone: ${SCHOOL_INFO.phone}  |  Email: ${SCHOOL_INFO.email}  |  Web: ${SCHOOL_INFO.website}`, pageWidth / 2, y, { align: 'center' });
-    y += 8;
+        let heightLeft = pdfHeight;
+        let position = 0;
 
-    // Horizontal line
-    doc.setDrawColor(59, 130, 246);
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 6;
+        // Add first page
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pdfHeight;
 
-    // --- Receipt Title ---
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(51, 65, 85);
-    doc.text('Fee Receipt', margin, y);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 116, 139);
-    doc.text(`# ${receiptNumber}`, pageWidth - margin, y, { align: 'right' });
-    y += 8;
-
-    // --- Fee Details ---
-    const rows = [
-        ['Student', name],
-        ['Class', studentClass],
-        ['Fee Type', fee.feeType],
-        ['Date', date],
-        ['Amount', `₹${fee.amount.toLocaleString()}`],
-        ['Paid', `₹${fee.paid.toLocaleString()}`],
-        ['Pending', `₹${fee.pending.toLocaleString()}`],
-        ['Status', fee.status.toUpperCase()]
-    ];
-
-    const col1X = margin;
-    const col2X = 70;
-    const rowHeight = 7;
-    let rowY = y;
-
-    // Background for the whole table
-    doc.setFillColor(248, 250, 252);
-    doc.rect(margin, rowY - 2, pageWidth - 2 * margin, rows.length * rowHeight + 4, 'F');
-
-    rows.forEach((row, idx) => {
-        const currentY = rowY + idx * rowHeight;
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        doc.text(row[0], col1X + 2, currentY + 5);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(51, 65, 85);
-        doc.text(row[1], col2X, currentY + 5);
-
-        // Status badge styling
-        if (row[0] === 'Status') {
-            const statusColor = fee.status === 'paid' ? [34, 197, 94] : (fee.status === 'pending' ? [234, 179, 8] : [239, 68, 68]);
-            doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
-            doc.setTextColor(255, 255, 255);
-            const textWidth = doc.getTextWidth(row[1]) + 4;
-            const rectX = col2X - 1;
-            const rectY = currentY + 1;
-            doc.roundedRect(rectX, rectY, textWidth + 6, 6, 1.5, 1.5, 'F');
-            doc.text(row[1], rectX + 3, currentY + 5);
+        // Add more pages if content overflows
+        while (heightLeft > 0) {
+            position = heightLeft - pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pdfHeight;
         }
+
+        // Save the PDF
+        const fileName = `Receipt_${name.replace(/\s/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+        pdf.save(fileName);
+        showToast('Receipt PDF downloaded successfully', 'success');
+    }).catch(error => {
+        console.error('PDF generation failed:', error);
+        showToast('Failed to generate PDF', 'error');
     });
-
-    y = rowY + rows.length * rowHeight + 6;
-
-    // --- Footer ---
-    y += 4;
-    doc.setDrawColor(203, 213, 225);
-    doc.setLineWidth(0.3);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 5;
-
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'italic');
-    doc.setTextColor(148, 163, 184);
-    doc.text('This is a system‑generated receipt. No signature required.', pageWidth / 2, y, { align: 'center' });
-    y += 4;
-    doc.text('Thank you for your payment.', pageWidth / 2, y, { align: 'center' });
-
-    // --- Save PDF ---
-    const fileName = `Receipt_${name.replace(/\s/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
-    doc.save(fileName);
-    showToast('Receipt PDF downloaded successfully', 'success');
 }
 
 function deleteFee(id) {
