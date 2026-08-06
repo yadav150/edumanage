@@ -3,11 +3,11 @@
 // ============================================================
 
 let students = [
-    { id: 1, name: 'Aarav Sharma', class: 10, section: 'A', roll: 12, feeStatus: 'paid' },
-    { id: 2, name: 'Priya Patel', class: 9, section: 'B', roll: 5, feeStatus: 'pending' },
-    { id: 3, name: 'Rohit Singh', class: 8, section: 'A', roll: 8, feeStatus: 'paid' },
-    { id: 4, name: 'Sneha Reddy', class: 7, section: 'C', roll: 3, feeStatus: 'overdue' },
-    { id: 5, name: 'Vikram Joshi', class: 6, section: 'B', roll: 15, feeStatus: 'paid' },
+    { id: 1, name: 'Aarav Sharma', class: 10, section: 'A', roll: 12, feeStatus: 'paid', admissionNo: 'ADM001', mobile: '9876543210', guardian: 'Mr. Sharma', photo: '' },
+    { id: 2, name: 'Priya Patel', class: 9, section: 'B', roll: 5, feeStatus: 'pending', admissionNo: 'ADM002', mobile: '9876543211', guardian: 'Mrs. Patel', photo: '' },
+    { id: 3, name: 'Rohit Singh', class: 8, section: 'A', roll: 8, feeStatus: 'paid', admissionNo: 'ADM003', mobile: '9876543212', guardian: 'Mr. Singh', photo: '' },
+    { id: 4, name: 'Sneha Reddy', class: 7, section: 'C', roll: 3, feeStatus: 'overdue', admissionNo: 'ADM004', mobile: '9876543213', guardian: 'Mr. Reddy', photo: '' },
+    { id: 5, name: 'Vikram Joshi', class: 6, section: 'B', roll: 15, feeStatus: 'paid', admissionNo: 'ADM005', mobile: '9876543214', guardian: 'Mrs. Joshi', photo: '' },
 ];
 
 let teachers = [
@@ -25,6 +25,12 @@ let feeRecords = [
     { id: 4, studentId: 4, feeType: 'Tuition', amount: 5000, paid: 1000, pending: 4000, status: 'overdue' },
     { id: 5, studentId: 5, feeType: 'Tuition', amount: 5000, paid: 5000, pending: 0, status: 'paid' },
     { id: 6, studentId: 2, feeType: 'Library', amount: 500, paid: 0, pending: 500, status: 'pending' },
+];
+// ===== PAYMENT HISTORY =====
+let feePayments = [
+    { id: 1, studentId: 1, receiptNo: 'RCP-2025-0001', date: '2025-01-15', month: 'January', amount: 5000, method: 'Cash', status: 'paid' },
+    { id: 2, studentId: 2, receiptNo: 'RCP-2025-0002', date: '2025-01-20', month: 'January', amount: 2000, method: 'Bank Transfer', status: 'pending' },
+    { id: 3, studentId: 3, receiptNo: 'RCP-2025-0003', date: '2025-02-01', month: 'February', amount: 5000, method: 'Cash', status: 'paid' },
 ];
 
 // ===== SALARY DATA =====
@@ -262,7 +268,10 @@ function navigateTo(page) {
         case 'dashboard': renderDashboard(); break;
         case 'students': renderStudents(); break;
         case 'teachers': renderStaff(); break;
-        case 'fees': renderFees(); break;
+        case 'fees':
+    renderFees();
+    initFeeModule();
+    break;
         case 'salary': renderSalary(); break;
     }
 
@@ -718,16 +727,47 @@ function showAddStaffModal() {
 // FEE MANAGEMENT
 // ============================================================
 
-function renderFees(filter = 'all', search = '') {
+function renderFees(statusFilter = 'all', search = '', studentId = null, classFilter = 'all', sectionFilter = 'all', monthFilter = 'all', methodFilter = 'all', startDate = '', endDate = '') {
     const tbody = document.getElementById('feeTableBody');
     let list = feeRecords;
-    if (filter !== 'all') {
-        list = list.filter(f => f.status === filter);
+
+    if (statusFilter !== 'all') {
+        list = list.filter(f => f.status === statusFilter);
     }
-    if (search.trim()) {
+    if (studentId) {
+        list = list.filter(f => f.studentId === studentId);
+    } else if (search.trim()) {
         const q = search.trim().toLowerCase();
-        list = list.filter(f => getStudentName(f.studentId).toLowerCase().includes(q));
+        list = list.filter(f => {
+            const student = students.find(s => s.id === f.studentId);
+            if (!student) return false;
+            return student.name.toLowerCase().includes(q) ||
+                   (student.admissionNo && student.admissionNo.toLowerCase().includes(q)) ||
+                   (student.roll && student.roll.toString().includes(q)) ||
+                   (student.mobile && student.mobile.includes(q)) ||
+                   (student.guardian && student.guardian.toLowerCase().includes(q));
+        });
     }
+    if (classFilter !== 'all') {
+        const classNum = parseInt(classFilter);
+        list = list.filter(f => {
+            const s = students.find(st => st.id === f.studentId);
+            return s && s.class === classNum;
+        });
+    }
+    if (sectionFilter !== 'all') {
+        list = list.filter(f => {
+            const s = students.find(st => st.id === f.studentId);
+            return s && s.section === sectionFilter;
+        });
+    }
+
+    list.sort((a, b) => {
+        const nameA = students.find(s => s.id === a.studentId)?.name || '';
+        const nameB = students.find(s => s.id === b.studentId)?.name || '';
+        return nameA.localeCompare(nameB);
+    });
+
     tbody.innerHTML = list.map((f, idx) => {
         const studentName = getStudentName(f.studentId);
         const studentClass = getStudentClass(f.studentId);
@@ -743,43 +783,36 @@ function renderFees(filter = 'all', search = '') {
             <td><span class="status-badge status-${f.status}">${f.status}</span></td>
             <td>
                 <div class="actions-cell">
-                    <button class="btn-receipt" data-id="${f.id}" data-action="receipt">Receipt</button>
-                    <button class="btn-edit" data-id="${f.id}" data-action="editFee">Edit</button>
-                    <button class="btn-delete" data-id="${f.id}" data-action="deleteFee">Delete</button>
+                    <button class="btn-edit" onclick="showStudentDetail(${f.studentId})">View</button>
+                    <button class="btn-primary" onclick="openCollectFeeModal(${f.studentId})" style="background:var(--primary); color:white; padding:0.2rem 0.6rem; border-radius:var(--radius); border:none; font-size:0.75rem;">Collect</button>
+                    <div class="dropdown" style="display:inline-block; position:relative;">
+                        <button class="btn-edit" onclick="toggleDropdown(this)" style="background:transparent; border:none; font-size:1.2rem;">⋮</button>
+                        <div class="dropdown-content" style="display:none; position:absolute; right:0; background:white; box-shadow:var(--shadow-lg); border-radius:var(--radius); min-width:160px; z-index:10;">
+                            <div onclick="showPaymentHistory(${f.studentId})" style="padding:0.5rem 1rem; cursor:pointer;">Payment History</div>
+                            <div onclick="viewReceipt(${f.id})" style="padding:0.5rem 1rem; cursor:pointer;">View Receipt</div>
+                            <div onclick="reprintReceipt(${f.id})" style="padding:0.5rem 1rem; cursor:pointer;">Reprint Receipt</div>
+                            <div onclick="downloadReceiptPDF(${f.id})" style="padding:0.5rem 1rem; cursor:pointer;">Download PDF</div>
+                        </div>
+                    </div>
                 </div>
             </td>
         </tr>
     `}).join('');
 
-    tbody.querySelectorAll('[data-action="receipt"]').forEach(btn => {
-        btn.addEventListener('click', () => showReceipt(parseInt(btn.dataset.id)));
+    document.querySelectorAll('.dropdown .btn-edit').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = this.closest('.dropdown');
+            const content = dropdown.querySelector('.dropdown-content');
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        });
     });
-    tbody.querySelectorAll('[data-action="editFee"]').forEach(btn => {
-        btn.addEventListener('click', () => editFee(parseInt(btn.dataset.id)));
-    });
-    tbody.querySelectorAll('[data-action="deleteFee"]').forEach(btn => {
-        btn.addEventListener('click', () => deleteFee(parseInt(btn.dataset.id)));
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-content').forEach(el => el.style.display = 'none');
     });
 
-    const totalCollected = feeRecords.reduce((sum, f) => sum + f.paid, 0);
-    const totalPending = feeRecords.reduce((sum, f) => sum + f.pending, 0);
-    const overdue = feeRecords.filter(f => f.status === 'overdue').length;
-    document.getElementById('feeStatsGrid').innerHTML = `
-        <div class="stat-card">
-            <span class="stat-label">Total Collected</span>
-            <span class="stat-value">₹${totalCollected.toLocaleString()}</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Pending Fees</span>
-            <span class="stat-value">₹${totalPending.toLocaleString()}</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Overdue Records</span>
-            <span class="stat-value">${overdue}</span>
-        </div>
-    `;
+    renderFeeAnalytics();
 }
-
 function showReceipt(id) {
     const fee = feeRecords.find(f => f.id === id);
     if (!fee) return;
@@ -875,6 +908,336 @@ function showReceipt(id) {
 // ============================================================
 // DOWNLOAD RECEIPT AS PDF
 // ============================================================
+// ============================================================
+// FEE MANAGEMENT – UPGRADED FUNCTIONS
+// ============================================================
+
+function renderFeeAnalytics() {
+    const grid = document.getElementById('feeAnalyticsGrid');
+    if (!grid) return;
+    const today = new Date().toDateString();
+    const todayCollection = feePayments.filter(p => new Date(p.date).toDateString() === today).reduce((sum, p) => sum + p.amount, 0);
+    const monthCollection = feePayments.filter(p => new Date(p.date).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.amount, 0);
+    const annualCollection = feePayments.filter(p => new Date(p.date).getFullYear() === new Date().getFullYear()).reduce((sum, p) => sum + p.amount, 0);
+    const pendingFees = feeRecords.reduce((sum, f) => sum + f.pending, 0);
+    const totalReceipts = feePayments.length;
+
+    grid.innerHTML = `
+        <div class="stat-card"><span class="stat-label">Today's Collection</span><span class="stat-value">₹${todayCollection.toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Monthly Collection</span><span class="stat-value">₹${monthCollection.toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Annual Collection</span><span class="stat-value">₹${annualCollection.toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Pending Fees</span><span class="stat-value">₹${pendingFees.toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Total Receipts</span><span class="stat-value">${totalReceipts}</span></div>
+    `;
+}
+
+function setupFeeSearch() {
+    const input = document.getElementById('feeUniversalSearch');
+    const suggestions = document.getElementById('feeSearchSuggestions');
+    if (!input || !suggestions) return;
+
+    input.addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        if (query.length < 1) {
+            suggestions.style.display = 'none';
+            return;
+        }
+        const matched = students.filter(s =>
+            s.name.toLowerCase().includes(query) ||
+            (s.admissionNo && s.admissionNo.toLowerCase().includes(query)) ||
+            (s.roll && s.roll.toString().includes(query)) ||
+            (s.mobile && s.mobile.includes(query)) ||
+            (s.guardian && s.guardian.toLowerCase().includes(query))
+        );
+        if (matched.length === 0) {
+            suggestions.innerHTML = '<div class="suggestion-item">No results</div>';
+        } else {
+            suggestions.innerHTML = matched.map(s => `
+                <div class="suggestion-item" data-id="${s.id}">
+                    <strong>${s.name}</strong> (${s.admissionNo || 'N/A'}) – ${s.class}${s.section}
+                </div>
+            `).join('');
+            suggestions.querySelectorAll('.suggestion-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    showStudentDetail(id);
+                    input.value = students.find(s => s.id === id).name;
+                    suggestions.style.display = 'none';
+                    renderFees('all', '', id);
+                });
+            });
+        }
+        suggestions.style.display = 'block';
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(() => { suggestions.style.display = 'none'; }, 200);
+    });
+}
+
+function showStudentDetail(id) {
+    const student = students.find(s => s.id === id);
+    if (!student) return;
+    const panel = document.getElementById('feeStudentDetail');
+    if (!panel) return;
+    const payments = feePayments.filter(p => p.studentId === id);
+    const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+    const lastPayment = payments.length ? payments[payments.length-1] : null;
+    const feeRecordsForStudent = feeRecords.filter(f => f.studentId === id);
+    const pendingTotal = feeRecordsForStudent.reduce((sum, f) => sum + f.pending, 0);
+
+    panel.style.display = 'block';
+    panel.innerHTML = `
+        <div style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+            <div style="display:flex; gap:1rem; align-items:center;">
+                <div class="student-avatar">${student.name.charAt(0)}</div>
+                <div>
+                    <h3 style="margin:0;">${student.name}</h3>
+                    <p style="margin:0; color:var(--gray-500); font-size:0.9rem;">${student.admissionNo || 'N/A'} | Roll: ${student.roll}</p>
+                </div>
+            </div>
+            <div style="flex:1; min-width:200px;">
+                <div class="detail-grid">
+                    <div class="label">Class & Section</div><div class="value">${student.class}${student.section}</div>
+                    <div class="label">Guardian</div><div class="value">${student.guardian || 'N/A'}</div>
+                    <div class="label">Total Paid</div><div class="value">₹${totalPaid.toLocaleString()}</div>
+                    <div class="label">Pending Amount</div><div class="value">₹${pendingTotal.toLocaleString()}</div>
+                    <div class="label">Last Payment</div><div class="value">${lastPayment ? new Date(lastPayment.date).toLocaleDateString() : 'N/A'}</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center; margin-left:auto;">
+                <button class="btn btn-primary" onclick="openCollectFeeModal(${id})">Collect Fee</button>
+                <button class="btn btn-secondary" onclick="showPaymentHistory(${id})">Payment History</button>
+                <button class="btn btn-secondary" onclick="printLastReceipt(${id})">Print Last Receipt</button>
+            </div>
+        </div>
+        <div style="margin-top:1rem; border-top:1px solid var(--gray-200); padding-top:1rem;">
+            <h4 style="margin:0 0 0.5rem 0;">Fee Structure</h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:0.5rem;">
+                ${feeRecordsForStudent.map(f => `
+                    <div style="background:var(--gray-50); padding:0.5rem; border-radius:var(--radius);">
+                        <div style="font-weight:600; font-size:0.9rem;">${f.feeType}</div>
+                        <div style="font-size:0.85rem; color:var(--gray-600);">Amount: ₹${f.amount} | Paid: ₹${f.paid} | Pending: ₹${f.pending}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function openCollectFeeModal(studentId) {
+    const student = students.find(s => s.id === studentId);
+    if (!student) return;
+    const studentFees = feeRecords.filter(f => f.studentId === studentId);
+    const totalFee = studentFees.reduce((sum, f) => sum + f.amount, 0);
+    const pending = studentFees.reduce((sum, f) => sum + f.pending, 0);
+
+    const modalHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div>
+                <div class="form-group"><label>Student</label><input type="text" value="${student.name}" disabled /></div>
+                <div class="form-group"><label>Total Fee</label><input type="number" id="calcTotalFee" value="${totalFee}" disabled /></div>
+                <div class="form-group"><label>Previous Balance</label><input type="number" id="calcPrevBalance" value="${pending}" disabled /></div>
+                <div class="form-group"><label>Discount (₹)</label><input type="number" id="calcDiscount" value="0" oninput="updateFeeCalculator()" /></div>
+                <div class="form-group"><label>Late Fine (₹)</label><input type="number" id="calcLateFine" value="0" oninput="updateFeeCalculator()" /></div>
+            </div>
+            <div>
+                <div class="form-group"><label>Amount Received (₹)</label><input type="number" id="calcAmountReceived" value="${totalFee - pending}" oninput="updateFeeCalculator()" /></div>
+                <div class="form-group"><label>Payment Method</label>
+                    <select id="calcPaymentMethod">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Digital Wallet">Digital Wallet</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Remaining Balance</label><input type="number" id="calcRemaining" value="${pending}" disabled /></div>
+                <div style="background:var(--gray-50); padding:0.75rem; border-radius:var(--radius); margin-top:0.5rem;">
+                    <p><strong>Total Fee:</strong> <span id="calcDisplayTotal">${totalFee}</span></p>
+                    <p><strong>Previous Balance:</strong> <span id="calcDisplayPrev">${pending}</span></p>
+                    <p><strong>Discount:</strong> <span id="calcDisplayDiscount">0</span></p>
+                    <p><strong>Late Fine:</strong> <span id="calcDisplayFine">0</span></p>
+                    <p><strong>Amount Received:</strong> <span id="calcDisplayReceived">${totalFee - pending}</span></p>
+                    <p><strong>Remaining:</strong> <span id="calcDisplayRemaining">${pending}</span></p>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:1rem;">
+            <button class="btn btn-primary" onclick="processFeePayment(${studentId})">Process Payment</button>
+        </div>
+    `;
+    openModal('Collect Fee', modalHTML, 'Cancel', () => { closeModal(); });
+    window.updateFeeCalculator = function() {
+        const totalFee = parseFloat(document.getElementById('calcTotalFee').value) || 0;
+        const prevBalance = parseFloat(document.getElementById('calcPrevBalance').value) || 0;
+        const discount = parseFloat(document.getElementById('calcDiscount').value) || 0;
+        const lateFine = parseFloat(document.getElementById('calcLateFine').value) || 0;
+        const received = parseFloat(document.getElementById('calcAmountReceived').value) || 0;
+        const remaining = prevBalance + lateFine - discount - received;
+        document.getElementById('calcRemaining').value = remaining.toFixed(2);
+        document.getElementById('calcDisplayTotal').textContent = totalFee;
+        document.getElementById('calcDisplayPrev').textContent = prevBalance;
+        document.getElementById('calcDisplayDiscount').textContent = discount;
+        document.getElementById('calcDisplayFine').textContent = lateFine;
+        document.getElementById('calcDisplayReceived').textContent = received;
+        document.getElementById('calcDisplayRemaining').textContent = remaining.toFixed(2);
+    };
+}
+
+function processFeePayment(studentId) {
+    const received = parseFloat(document.getElementById('calcAmountReceived').value) || 0;
+    const method = document.getElementById('calcPaymentMethod').value;
+    if (received <= 0) {
+        showToast('Please enter a valid amount', 'error');
+        return;
+    }
+    const newPayment = {
+        id: idCounter.fee++,
+        studentId: studentId,
+        feeType: 'Payment',
+        amount: received,
+        paid: received,
+        pending: 0,
+        status: 'paid'
+    };
+    feeRecords.push(newPayment);
+
+    const receiptNo = `RCP-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+    feePayments.push({
+        id: feePayments.length + 1,
+        studentId: studentId,
+        receiptNo: receiptNo,
+        date: new Date().toISOString().split('T')[0],
+        month: new Date().toLocaleString('default', { month: 'long' }),
+        amount: received,
+        method: method,
+        status: 'paid'
+    });
+
+    showToast('Payment processed successfully! Receipt: ' + receiptNo, 'success');
+    closeModal();
+    renderFees();
+    renderFeeAnalytics();
+    showStudentDetail(studentId);
+}
+
+function showPaymentHistory(studentId) {
+    const payments = feePayments.filter(p => p.studentId === studentId);
+    if (payments.length === 0) {
+        showToast('No payment history found', 'info');
+        return;
+    }
+    const student = students.find(s => s.id === studentId);
+    const rows = payments.map(p => `
+        <tr>
+            <td>${p.receiptNo}</td>
+            <td>${new Date(p.date).toLocaleDateString()}</td>
+            <td>${p.month}</td>
+            <td>₹${p.amount}</td>
+            <td>${p.method}</td>
+            <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+            <td>
+                <button class="btn-edit" onclick="viewReceipt(${p.id})">View</button>
+                <button class="btn-receipt" onclick="reprintReceipt(${p.id})">Reprint</button>
+                <button class="btn-edit" onclick="downloadReceiptPDF(${p.id})">PDF</button>
+            </td>
+        </tr>
+    `).join('');
+
+    openModal(`Payment History – ${student.name}`, `
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead><tr><th>Receipt No</th><th>Date</th><th>Month</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+    `, 'Close', () => { closeModal(); });
+}
+
+function openBulkCollectModal() {
+    openModal('Bulk Fee Collection', `
+        <div class="form-group">
+            <label>Class</label>
+            <select id="bulkClass" style="width:100%; padding:0.5rem; border:1px solid var(--gray-200); border-radius:var(--radius);">
+                ${Array.from({length:12}, (_,i) => i+1).map(c => `<option value="${c}">Class ${c}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Section</label>
+            <select id="bulkSection" style="width:100%; padding:0.5rem; border:1px solid var(--gray-200); border-radius:var(--radius);">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="NA">NA</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Fee Type</label>
+            <input type="text" id="bulkFeeType" placeholder="e.g., Tuition" style="width:100%; padding:0.5rem; border:1px solid var(--gray-200); border-radius:var(--radius);" />
+        </div>
+        <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="bulkAmount" placeholder="5000" style="width:100%; padding:0.5rem; border:1px solid var(--gray-200); border-radius:var(--radius);" />
+        </div>
+        <button class="btn btn-primary" onclick="processBulkCollection()">Collect for All</button>
+    `, 'Cancel', () => { closeModal(); });
+}
+
+function processBulkCollection() {
+    const classVal = parseInt(document.getElementById('bulkClass').value);
+    const section = document.getElementById('bulkSection').value;
+    const feeType = document.getElementById('bulkFeeType').value.trim();
+    const amount = parseFloat(document.getElementById('bulkAmount').value);
+    if (!feeType || isNaN(amount) || amount <= 0) {
+        showToast('Please fill all fields correctly', 'error');
+        return;
+    }
+    const targetStudents = students.filter(s => s.class === classVal && s.section === section);
+    targetStudents.forEach(s => {
+        feeRecords.push({
+            id: idCounter.fee++,
+            studentId: s.id,
+            feeType: feeType,
+            amount: amount,
+            paid: 0,
+            pending: amount,
+            status: 'pending'
+        });
+    });
+    showToast(`Fee records added for ${targetStudents.length} students`, 'success');
+    closeModal();
+    renderFees();
+    renderFeeAnalytics();
+}
+
+function applyFeeFilters() {
+    const classFilter = document.getElementById('feeClassFilter').value;
+    const sectionFilter = document.getElementById('feeSectionFilter').value;
+    const statusFilter = document.getElementById('feeStatusFilter').value;
+    const search = document.getElementById('feeUniversalSearch').value;
+    renderFees(statusFilter, search, null, classFilter, sectionFilter);
+}
+
+function initFeeModule() {
+    renderFeeAnalytics();
+    setupFeeSearch();
+    const applyBtn = document.getElementById('feeApplyFilters');
+    if (applyBtn) applyBtn.addEventListener('click', applyFeeFilters);
+    const resetBtn = document.getElementById('feeResetFilters');
+    if (resetBtn) resetBtn.addEventListener('click', function() {
+        document.getElementById('feeClassFilter').value = 'all';
+        document.getElementById('feeSectionFilter').value = 'all';
+        document.getElementById('feeStatusFilter').value = 'all';
+        document.getElementById('feeUniversalSearch').value = '';
+        renderFees();
+    });
+    const bulkBtn = document.getElementById('feeCollectBulkBtn');
+    if (bulkBtn) bulkBtn.addEventListener('click', openBulkCollectModal);
+    // Export buttons – you can implement later
+}
+
+// Placeholders for receipt functions (will be upgraded later)
+function viewReceipt(id) { showToast('Receipt view coming soon', 'info'); }
+function reprintReceipt(id) { showToast('Reprint coming soon', 'info'); }
+function downloadReceiptPDF(id) { showToast('PDF download coming soon', 'info'); }
+function printLastReceipt(id) { showToast('Print last receipt coming soon', 'info'); }
 
 function downloadReceiptPDF() {
     const data = window._receiptData;
