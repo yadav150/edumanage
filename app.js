@@ -27,17 +27,29 @@ let feeRecords = [
     { id: 6, studentId: 2, feeType: 'Library', amount: 500, paid: 0, pending: 500, status: 'pending' },
 ];
 
+// ===== SALARY DATA =====
+let salaryRecords = [
+    { id: 1, employeeId: 1, employeeName: 'Dr. Anil Kumar', role: 'teacher', month: 'January', year: 2025, amount: 45000, status: 'paid', paymentMethod: 'Bank Transfer' },
+    { id: 2, employeeId: 2, employeeName: 'Mrs. Sunita Rao', role: 'teacher', month: 'January', year: 2025, amount: 42000, status: 'pending', paymentMethod: '' },
+    { id: 3, employeeId: 3, employeeName: 'Mr. Rajesh Gupta', role: 'staff', month: 'January', year: 2025, amount: 28000, status: 'paid', paymentMethod: 'Cash' },
+    { id: 4, employeeId: 4, employeeName: 'Ms. Priya Menon', role: 'teacher', month: 'February', year: 2025, amount: 40000, status: 'paid', paymentMethod: 'Bank Transfer' },
+    { id: 5, employeeId: 5, employeeName: 'Mr. Suresh Patel', role: 'staff', month: 'February', year: 2025, amount: 25000, status: 'pending', paymentMethod: '' },
+    { id: 6, employeeId: 1, employeeName: 'Dr. Anil Kumar', role: 'teacher', month: 'February', year: 2025, amount: 45000, status: 'paid', paymentMethod: 'Bank Transfer' },
+];
+
 let activities = [
     { id: 1, text: 'Aarav Sharma paid tuition fee', time: '2 hours ago' },
     { id: 2, text: 'New student Rohit Singh added', time: '5 hours ago' },
     { id: 3, text: 'Fee reminder sent to Priya Patel', time: '1 day ago' },
     { id: 4, text: 'Staff member Suresh Patel updated', time: '2 days ago' },
+    { id: 5, text: 'Salary paid to Dr. Anil Kumar for January', time: '3 days ago' },
 ];
 
 let idCounter = {
     student: 6,
     staff: 6,
     fee: 7,
+    salary: 7,
 };
 
 // ============================================================
@@ -116,6 +128,16 @@ function getStudentClass(id) {
     return s ? `${s.class}${s.section}` : 'N/A';
 }
 
+function getEmployeeName(id) {
+    const emp = teachers.find(t => t.id === id);
+    return emp ? emp.name : 'Unknown';
+}
+
+function getEmployeeRole(id) {
+    const emp = teachers.find(t => t.id === id);
+    return emp ? emp.role : 'N/A';
+}
+
 // ============================================================
 // TEACHER CONDITIONAL LOGIC
 // ============================================================
@@ -133,7 +155,6 @@ function setupTeacherConditionalLogic() {
                 addSubjectGroup.style.display = 'none';
             }
         });
-        // Trigger initially based on default selection
         if (addDesignation.value === 'Subject Teacher') {
             addSubjectGroup.style.display = 'block';
         } else {
@@ -141,7 +162,6 @@ function setupTeacherConditionalLogic() {
         }
     }
 
-    // For Edit form
     const editDesignation = document.getElementById('editStaffDesignation');
     const editSubjectGroup = document.getElementById('editSubjectGroup');
     if (editDesignation && editSubjectGroup) {
@@ -153,7 +173,6 @@ function setupTeacherConditionalLogic() {
                 editSubjectGroup.style.display = 'none';
             }
         });
-        // Trigger on load based on current value
         if (editDesignation.value === 'Subject Teacher') {
             editSubjectGroup.style.display = 'block';
         } else {
@@ -167,7 +186,6 @@ function setupTeacherConditionalLogic() {
 // ============================================================
 
 function setupFeeConditionalLogic() {
-    // For Add form
     const addFeeType = document.getElementById('addFeeType');
     const addCustomGroup = document.getElementById('addCustomFeeGroup');
     if (addFeeType && addCustomGroup) {
@@ -179,7 +197,6 @@ function setupFeeConditionalLogic() {
                 addCustomGroup.style.display = 'none';
             }
         });
-        // Trigger initially
         if (addFeeType.value === 'Others') {
             addCustomGroup.style.display = 'block';
         } else {
@@ -187,7 +204,6 @@ function setupFeeConditionalLogic() {
         }
     }
 
-    // For Edit form
     const editFeeType = document.getElementById('editFeeType');
     const editCustomGroup = document.getElementById('editCustomFeeGroup');
     if (editFeeType && editCustomGroup) {
@@ -199,7 +215,6 @@ function setupFeeConditionalLogic() {
                 editCustomGroup.style.display = 'none';
             }
         });
-        // Trigger on load
         if (editFeeType.value === 'Others') {
             editCustomGroup.style.display = 'block';
         } else {
@@ -229,6 +244,7 @@ function navigateTo(page) {
         students: 'Students',
         teachers: 'Teachers & Staff',
         fees: 'Fee Management',
+        salary: 'Salary',
     };
     pageTitle.textContent = titles[page] || 'Dashboard';
 
@@ -237,6 +253,7 @@ function navigateTo(page) {
         case 'students': renderStudents(); break;
         case 'teachers': renderStaff(); break;
         case 'fees': renderFees(); break;
+        case 'salary': renderSalary(); break;
     }
 
     if (window.innerWidth < 1024) {
@@ -255,6 +272,8 @@ function renderDashboard() {
     const totalStaff = teachers.filter(t => t.role === 'staff').length;
     const totalCollected = feeRecords.reduce((sum, f) => sum + f.paid, 0);
     const totalPending = feeRecords.reduce((sum, f) => sum + f.pending, 0);
+    const totalSalaryPaid = salaryRecords.filter(s => s.status === 'paid').reduce((sum, s) => sum + s.amount, 0);
+    const totalSalaryPending = salaryRecords.filter(s => s.status === 'pending').reduce((sum, s) => sum + s.amount, 0);
 
     const statsGrid = document.getElementById('statsGrid');
     statsGrid.innerHTML = `
@@ -277,6 +296,14 @@ function renderDashboard() {
         <div class="stat-card">
             <span class="stat-label">Pending Fees</span>
             <span class="stat-value">₹${totalPending.toLocaleString()}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Salary Paid</span>
+            <span class="stat-value">₹${totalSalaryPaid.toLocaleString()}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Salary Pending</span>
+            <span class="stat-value">₹${totalSalaryPending.toLocaleString()}</span>
         </div>
     `;
 
@@ -399,10 +426,6 @@ function deleteStudent(id) {
         renderFees();
     }
 }
-
-// ============================================================
-// ADD STUDENT
-// ============================================================
 
 function showAddStudentModal() {
     const classOptions = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -555,7 +578,6 @@ function editStaff(id) {
         }
     });
 
-    // Set up conditional logic for edit form
     setTimeout(() => {
         const roleSelect = document.getElementById('editStaffDesignation');
         const subjectGroup = document.getElementById('editSubjectGroup');
@@ -580,10 +602,6 @@ function deleteStaff(id) {
         renderDashboard();
     }
 }
-
-// ============================================================
-// ADD TEACHER / STAFF
-// ============================================================
 
 function showAddStaffModal() {
     const designationOptions = ['Principal', 'Head Master', 'Assistant Teacher', 'Subject Teacher', 'Administration', 'Staff', 'Peon']
@@ -737,32 +755,23 @@ function showReceipt(id) {
     modalCallback = () => { closeModal(); };
 }
 
-// ============================================================
-// EDIT FEE - Updated with dropdown & Others conditional
-// ============================================================
-
 function editFee(id) {
     const fee = feeRecords.find(f => f.id === id);
     if (!fee) return;
 
     const studentOptions = students.map(s => `<option value="${s.id}" ${s.id === fee.studentId ? 'selected' : ''}>${s.name}</option>`).join('');
 
-    // Determine if feeType is one of predefined options
     const predefined = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others'];
     let selectedType = fee.feeType;
     let showOthers = false;
     let customValue = '';
     if (predefined.includes(selectedType)) {
-        // If it's "Others", we show the text input
         if (selectedType === 'Others') {
             showOthers = true;
-            // We need to store custom value separately? We'll use feeType as custom text when Others.
-            // For existing data, if feeType is not in predefined, we treat as Others.
         }
     } else {
-        // Not in predefined -> treat as Others
         selectedType = 'Others';
-        customValue = fee.feeType; // Store the actual custom text
+        customValue = fee.feeType;
         showOthers = true;
     }
 
@@ -843,10 +852,6 @@ function deleteFee(id) {
     }
 }
 
-// ============================================================
-// ADD FEE - Updated with dropdown & Others conditional
-// ============================================================
-
 function showAddFeeModal() {
     const studentOptions = students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
     const feeTypeOptions = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others']
@@ -924,6 +929,252 @@ function showAddFeeModal() {
 }
 
 // ============================================================
+// SALARY MODULE
+// ============================================================
+
+function renderSalary(statusFilter = 'all', search = '', monthFilter = 'all') {
+    const tbody = document.getElementById('salaryTableBody');
+    let list = salaryRecords;
+
+    if (statusFilter !== 'all') {
+        list = list.filter(s => s.status === statusFilter);
+    }
+    if (monthFilter !== 'all') {
+        list = list.filter(s => s.month === monthFilter);
+    }
+    if (search.trim()) {
+        const q = search.trim().toLowerCase();
+        list = list.filter(s => s.employeeName.toLowerCase().includes(q));
+    }
+
+    tbody.innerHTML = list.map((s, idx) => `
+        <tr>
+            <td>${idx + 1}</td>
+            <td>${s.employeeName}</td>
+            <td><span class="status-badge ${s.role === 'teacher' ? 'status-paid' : 'status-pending'}">${s.role}</span></td>
+            <td>${s.month}</td>
+            <td>${s.year}</td>
+            <td>₹${s.amount.toLocaleString()}</td>
+            <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+            <td>${s.paymentMethod || '—'}</td>
+            <td>
+                <div class="actions-cell">
+                    <button class="btn-edit" data-id="${s.id}" data-action="editSalary">Edit</button>
+                    <button class="btn-delete" data-id="${s.id}" data-action="deleteSalary">Delete</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    tbody.querySelectorAll('[data-action="editSalary"]').forEach(btn => {
+        btn.addEventListener('click', () => editSalary(parseInt(btn.dataset.id)));
+    });
+    tbody.querySelectorAll('[data-action="deleteSalary"]').forEach(btn => {
+        btn.addEventListener('click', () => deleteSalary(parseInt(btn.dataset.id)));
+    });
+
+    // Salary stats
+    const totalPaid = salaryRecords.filter(s => s.status === 'paid').reduce((sum, s) => sum + s.amount, 0);
+    const totalPending = salaryRecords.filter(s => s.status === 'pending').reduce((sum, s) => sum + s.amount, 0);
+    const totalRecords = salaryRecords.length;
+
+    document.getElementById('salaryStatsGrid').innerHTML = `
+        <div class="stat-card">
+            <span class="stat-label">Total Salary Paid</span>
+            <span class="stat-value">₹${totalPaid.toLocaleString()}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Salary Pending</span>
+            <span class="stat-value">₹${totalPending.toLocaleString()}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Records</span>
+            <span class="stat-value">${totalRecords}</span>
+        </div>
+    `;
+}
+
+function showAddSalaryModal() {
+    const employeeOptions = teachers.map(t =>
+        `<option value="${t.id}">${t.name} (${t.role})</option>`
+    ).join('');
+
+    const monthOptions = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        .map(m => `<option value="${m}">${m}</option>`).join('');
+
+    const yearOptions = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i)
+        .map(y => `<option value="${y}">${y}</option>`).join('');
+
+    const paymentMethodOptions = ['Bank Transfer', 'Cash', 'Cheque', 'Digital Wallet']
+        .map(p => `<option value="${p}">${p}</option>`).join('');
+
+    openModal('Add Salary', `
+        <div class="form-group">
+            <label>Employee</label>
+            <select id="addSalaryEmployee">${employeeOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>Month</label>
+            <select id="addSalaryMonth">${monthOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>Year</label>
+            <select id="addSalaryYear">${yearOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="addSalaryAmount" placeholder="Enter salary amount" />
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select id="addSalaryStatus">
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Payment Method</label>
+            <select id="addSalaryPaymentMethod">
+                <option value="">— Select —</option>
+                ${paymentMethodOptions}
+            </select>
+        </div>
+    `, 'Add Salary', () => {
+        const employeeId = parseInt(document.getElementById('addSalaryEmployee').value);
+        const month = document.getElementById('addSalaryMonth').value;
+        const year = parseInt(document.getElementById('addSalaryYear').value);
+        const amount = parseFloat(document.getElementById('addSalaryAmount').value);
+        const status = document.getElementById('addSalaryStatus').value;
+        const paymentMethod = document.getElementById('addSalaryPaymentMethod').value;
+
+        if (!employeeId || !month || !year || isNaN(amount) || amount <= 0) {
+            showToast('Please fill all fields with valid values', 'error');
+            return;
+        }
+
+        const employee = teachers.find(t => t.id === employeeId);
+        if (!employee) {
+            showToast('Employee not found', 'error');
+            return;
+        }
+
+        const newSalary = {
+            id: idCounter.salary++,
+            employeeId,
+            employeeName: employee.name,
+            role: employee.role,
+            month,
+            year,
+            amount,
+            status,
+            paymentMethod: status === 'paid' ? paymentMethod : '',
+        };
+        salaryRecords.push(newSalary);
+        showToast('Salary record added successfully', 'success');
+        renderSalary();
+        renderDashboard();
+        closeModal();
+    });
+}
+
+function editSalary(id) {
+    const salary = salaryRecords.find(s => s.id === id);
+    if (!salary) return;
+
+    const employeeOptions = teachers.map(t =>
+        `<option value="${t.id}" ${t.id === salary.employeeId ? 'selected' : ''}>${t.name} (${t.role})</option>`
+    ).join('');
+
+    const monthOptions = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        .map(m => `<option value="${m}" ${m === salary.month ? 'selected' : ''}>${m}</option>`).join('');
+
+    const yearOptions = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i)
+        .map(y => `<option value="${y}" ${y === salary.year ? 'selected' : ''}>${y}</option>`).join('');
+
+    const paymentMethodOptions = ['Bank Transfer', 'Cash', 'Cheque', 'Digital Wallet']
+        .map(p => `<option value="${p}" ${p === salary.paymentMethod ? 'selected' : ''}>${p}</option>`).join('');
+
+    openModal('Edit Salary', `
+        <div class="form-group">
+            <label>Employee</label>
+            <select id="editSalaryEmployee">${employeeOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>Month</label>
+            <select id="editSalaryMonth">${monthOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>Year</label>
+            <select id="editSalaryYear">${yearOptions}</select>
+        </div>
+        <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="editSalaryAmount" value="${salary.amount}" />
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select id="editSalaryStatus">
+                <option value="paid" ${salary.status === 'paid' ? 'selected' : ''}>Paid</option>
+                <option value="pending" ${salary.status === 'pending' ? 'selected' : ''}>Pending</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Payment Method</label>
+            <select id="editSalaryPaymentMethod">
+                <option value="">— Select —</option>
+                ${paymentMethodOptions}
+            </select>
+        </div>
+    `, 'Update', () => {
+        const employeeId = parseInt(document.getElementById('editSalaryEmployee').value);
+        const month = document.getElementById('editSalaryMonth').value;
+        const year = parseInt(document.getElementById('editSalaryYear').value);
+        const amount = parseFloat(document.getElementById('editSalaryAmount').value);
+        const status = document.getElementById('editSalaryStatus').value;
+        const paymentMethod = document.getElementById('editSalaryPaymentMethod').value;
+
+        if (!employeeId || !month || !year || isNaN(amount) || amount <= 0) {
+            showToast('Please fill all fields with valid values', 'error');
+            return;
+        }
+
+        const employee = teachers.find(t => t.id === employeeId);
+        if (!employee) {
+            showToast('Employee not found', 'error');
+            return;
+        }
+
+        const idx = salaryRecords.findIndex(s => s.id === id);
+        if (idx !== -1) {
+            salaryRecords[idx] = {
+                ...salaryRecords[idx],
+                employeeId,
+                employeeName: employee.name,
+                role: employee.role,
+                month,
+                year,
+                amount,
+                status,
+                paymentMethod: status === 'paid' ? paymentMethod : '',
+            };
+            showToast('Salary record updated successfully', 'success');
+            renderSalary();
+            renderDashboard();
+            closeModal();
+        }
+    });
+}
+
+function deleteSalary(id) {
+    if (confirm('Are you sure you want to delete this salary record?')) {
+        salaryRecords = salaryRecords.filter(s => s.id !== id);
+        showToast('Salary record deleted', 'success');
+        renderSalary();
+        renderDashboard();
+    }
+}
+
+// ============================================================
 // EVENT BINDINGS
 // ============================================================
 
@@ -966,6 +1217,7 @@ document.querySelectorAll('.quick-action-btn').forEach(btn => {
             case 'addStudent': showAddStudentModal(); break;
             case 'addTeacher': showAddStaffModal(); break;
             case 'addStaff': showAddStaffModal(); break;
+            case 'addSalary': showAddSalaryModal(); break;
             case 'viewFees': navigateTo('fees'); break;
         }
     });
@@ -974,7 +1226,9 @@ document.querySelectorAll('.quick-action-btn').forEach(btn => {
 document.getElementById('addStudentBtn').addEventListener('click', showAddStudentModal);
 document.getElementById('addStaffBtn').addEventListener('click', showAddStaffModal);
 document.getElementById('addFeeBtn').addEventListener('click', showAddFeeModal);
+document.getElementById('addSalaryBtn').addEventListener('click', showAddSalaryModal);
 
+// Student search & filter
 document.getElementById('studentSearch').addEventListener('input', (e) => {
     const filter = document.getElementById('studentFilter').value;
     renderStudents(filter, e.target.value);
@@ -984,6 +1238,7 @@ document.getElementById('studentFilter').addEventListener('change', (e) => {
     renderStudents(e.target.value, search);
 });
 
+// Staff search & filter
 document.getElementById('staffSearch').addEventListener('input', (e) => {
     const filter = document.getElementById('staffFilter').value;
     renderStaff(filter, e.target.value);
@@ -993,6 +1248,7 @@ document.getElementById('staffFilter').addEventListener('change', (e) => {
     renderStaff(e.target.value, search);
 });
 
+// Fee search & filter
 document.getElementById('feeSearch').addEventListener('input', (e) => {
     const filter = document.getElementById('feeFilter').value;
     renderFees(filter, e.target.value);
@@ -1000,6 +1256,23 @@ document.getElementById('feeSearch').addEventListener('input', (e) => {
 document.getElementById('feeFilter').addEventListener('change', (e) => {
     const search = document.getElementById('feeSearch').value;
     renderFees(e.target.value, search);
+});
+
+// Salary search & filter
+document.getElementById('salarySearch').addEventListener('input', (e) => {
+    const status = document.getElementById('salaryFilter').value;
+    const month = document.getElementById('salaryMonthFilter').value;
+    renderSalary(status, e.target.value, month);
+});
+document.getElementById('salaryFilter').addEventListener('change', (e) => {
+    const search = document.getElementById('salarySearch').value;
+    const month = document.getElementById('salaryMonthFilter').value;
+    renderSalary(e.target.value, search, month);
+});
+document.getElementById('salaryMonthFilter').addEventListener('change', (e) => {
+    const search = document.getElementById('salarySearch').value;
+    const status = document.getElementById('salaryFilter').value;
+    renderSalary(status, search, e.target.value);
 });
 
 // ============================================================
