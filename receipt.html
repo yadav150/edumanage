@@ -5,19 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fee Receipt | Morning Glory English Academy</title>
     <link rel="stylesheet" href="receipt.css" />
-    <!-- Font for amount in words (optional) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
 </head>
 <body>
     <div class="receipt-wrapper" id="receiptWrapper">
-        <!-- Receipt content will be injected by receipt.js -->
+        <!-- Receipt content injected by receipt.js -->
     </div>
 
     <!-- Action buttons (visible only on screen, hidden when printing) -->
     <div class="action-bar" id="actionBar">
         <button class="btn btn-print" onclick="window.print()">Print</button>
         <button class="btn btn-download" onclick="downloadPDF()">Download PDF</button>
-        <button class="btn btn-back" onclick="window.close()">✕ Close</button>
+        <button class="btn btn-back" onclick="window.close()">Close</button>
     </div>
 
     <script src="receipt.js"></script>
