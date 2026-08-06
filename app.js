@@ -1,21 +1,22 @@
 // ============================================================
 // AUTH.JS – Firebase Authentication Module
 // ============================================================
-// Future-ready for Firebase integration without changing UI.
-// All functions use the existing toast notification system.
+// Firebase configuration from your project: its-me-ame
 // ============================================================
 
 // ============================================================
-// FIREBASE CONFIGURATION (replace with your own)
+// FIREBASE CONFIGURATION
 // ============================================================
 
 const firebaseConfig = {
-    apiKey: 'YOUR_API_KEY',
-    authDomain: 'YOUR_PROJECT.firebaseapp.com',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT.appspot.com',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    appId: 'YOUR_APP_ID'
+    apiKey: 'AIzaSyBLX-DBrAZZgi7OGRW3-oeno0PJsZ9hzEg',
+    authDomain: 'its-me-ame.firebaseapp.com',
+    databaseURL: 'https://its-me-ame-default-rtdb.firebaseio.com',
+    projectId: 'its-me-ame',
+    storageBucket: 'its-me-ame.firebasestorage.app',
+    messagingSenderId: '832380884001',
+    appId: '1:832380884001:web:0c9239588ceb8d8995bf60',
+    measurementId: 'G-L12EEJG7L9'
 };
 
 // ============================================================
