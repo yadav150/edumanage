@@ -930,7 +930,7 @@ select {
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
-/* ===== EXPORT BUTTONS ===== */
+/* Export buttons */
 .export-buttons {
     display: flex;
     gap: 0.5rem;
@@ -941,33 +941,20 @@ select {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border-radius: var(--radius);
-    border: 1px solid var(--gray-200);
     background: white;
+    border: 1px solid var(--gray-200);
     color: var(--gray-600);
     transition: all var(--transition);
-    width: 38px;
-    height: 38px;
 }
 
 .btn-export:hover {
     background: var(--gray-100);
-    transform: scale(1.05);
+    border-color: var(--gray-400);
+    transform: scale(1.02);
 }
 
-.btn-export.btn-pdf:hover {
-    background: #fee2e2;
-    color: #dc2626;
-    border-color: #fecaca;
-}
-
-.btn-export.btn-excel:hover {
-    background: #dcfce7;
-    color: #16a34a;
-    border-color: #bbf7d0;
-}
-
-.btn-export:active {
-    transform: scale(0.92);
+.btn-export svg {
+    stroke: currentColor;
 }
