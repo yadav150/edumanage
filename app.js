@@ -91,7 +91,11 @@ function openModal(title, bodyHTML, confirmText = 'Confirm', callback) {
     modalCallback = callback;
     modalOverlay.classList.add('active');
 
-    // If this is the add teacher form, set up conditional logic after DOM render
+    // Set up conditional logic for fee form (Others)
+    if (title.includes('Fee')) {
+        setTimeout(() => setupFeeConditionalLogic(), 50);
+    }
+    // Set up conditional logic for teacher form
     if (title.includes('Teacher') || title.includes('Staff')) {
         setTimeout(() => setupTeacherConditionalLogic(), 50);
     }
@@ -154,6 +158,52 @@ function setupTeacherConditionalLogic() {
             editSubjectGroup.style.display = 'block';
         } else {
             editSubjectGroup.style.display = 'none';
+        }
+    }
+}
+
+// ============================================================
+// FEE CONDITIONAL LOGIC (Others)
+// ============================================================
+
+function setupFeeConditionalLogic() {
+    // For Add form
+    const addFeeType = document.getElementById('addFeeType');
+    const addCustomGroup = document.getElementById('addCustomFeeGroup');
+    if (addFeeType && addCustomGroup) {
+        addFeeType.addEventListener('change', function() {
+            if (this.value === 'Others') {
+                addCustomGroup.style.display = 'block';
+                addCustomGroup.style.animation = 'fadeIn 250ms ease';
+            } else {
+                addCustomGroup.style.display = 'none';
+            }
+        });
+        // Trigger initially
+        if (addFeeType.value === 'Others') {
+            addCustomGroup.style.display = 'block';
+        } else {
+            addCustomGroup.style.display = 'none';
+        }
+    }
+
+    // For Edit form
+    const editFeeType = document.getElementById('editFeeType');
+    const editCustomGroup = document.getElementById('editCustomFeeGroup');
+    if (editFeeType && editCustomGroup) {
+        editFeeType.addEventListener('change', function() {
+            if (this.value === 'Others') {
+                editCustomGroup.style.display = 'block';
+                editCustomGroup.style.animation = 'fadeIn 250ms ease';
+            } else {
+                editCustomGroup.style.display = 'none';
+            }
+        });
+        // Trigger on load
+        if (editFeeType.value === 'Others') {
+            editCustomGroup.style.display = 'block';
+        } else {
+            editCustomGroup.style.display = 'none';
         }
     }
 }
@@ -351,7 +401,7 @@ function deleteStudent(id) {
 }
 
 // ============================================================
-// ADD STUDENT - UPDATED with dropdowns
+// ADD STUDENT
 // ============================================================
 
 function showAddStudentModal() {
@@ -532,7 +582,7 @@ function deleteStaff(id) {
 }
 
 // ============================================================
-// ADD TEACHER / STAFF - UPDATED with dropdowns & conditional logic
+// ADD TEACHER / STAFF
 // ============================================================
 
 function showAddStaffModal() {
@@ -687,10 +737,38 @@ function showReceipt(id) {
     modalCallback = () => { closeModal(); };
 }
 
+// ============================================================
+// EDIT FEE - Updated with dropdown & Others conditional
+// ============================================================
+
 function editFee(id) {
     const fee = feeRecords.find(f => f.id === id);
     if (!fee) return;
+
     const studentOptions = students.map(s => `<option value="${s.id}" ${s.id === fee.studentId ? 'selected' : ''}>${s.name}</option>`).join('');
+
+    // Determine if feeType is one of predefined options
+    const predefined = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others'];
+    let selectedType = fee.feeType;
+    let showOthers = false;
+    let customValue = '';
+    if (predefined.includes(selectedType)) {
+        // If it's "Others", we show the text input
+        if (selectedType === 'Others') {
+            showOthers = true;
+            // We need to store custom value separately? We'll use feeType as custom text when Others.
+            // For existing data, if feeType is not in predefined, we treat as Others.
+        }
+    } else {
+        // Not in predefined -> treat as Others
+        selectedType = 'Others';
+        customValue = fee.feeType; // Store the actual custom text
+        showOthers = true;
+    }
+
+    const feeTypeOptions = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others']
+        .map(opt => `<option value="${opt}" ${opt === selectedType ? 'selected' : ''}>${opt}</option>`).join('');
+
     openModal('Edit Fee Record', `
         <div class="form-group">
             <label>Student</label>
@@ -698,7 +776,11 @@ function editFee(id) {
         </div>
         <div class="form-group">
             <label>Fee Type</label>
-            <input type="text" id="editFeeType" value="${fee.feeType}" />
+            <select id="editFeeType">${feeTypeOptions}</select>
+        </div>
+        <div class="form-group" id="editCustomFeeGroup" style="${showOthers ? 'display:block;' : 'display:none;'}">
+            <label>Custom Fee Description</label>
+            <input type="text" id="editCustomFee" placeholder="Enter custom fee description" value="${customValue}" />
         </div>
         <div class="form-group">
             <label>Amount (₹)</label>
@@ -722,18 +804,28 @@ function editFee(id) {
         </div>
     `, 'Update', () => {
         const studentId = parseInt(document.getElementById('editFeeStudent').value);
-        const feeType = document.getElementById('editFeeType').value.trim();
+        const feeTypeSelect = document.getElementById('editFeeType');
+        const feeType = feeTypeSelect.value;
+        let finalFeeType = feeType;
+        if (feeType === 'Others') {
+            const custom = document.getElementById('editCustomFee').value.trim();
+            if (!custom) {
+                showToast('Please enter a custom fee description', 'error');
+                return;
+            }
+            finalFeeType = custom;
+        }
         const amount = parseFloat(document.getElementById('editFeeAmount').value);
         const paid = parseFloat(document.getElementById('editFeePaid').value);
         const pending = parseFloat(document.getElementById('editFeePending').value);
         const status = document.getElementById('editFeeStatus').value;
-        if (!feeType || isNaN(amount) || isNaN(paid) || isNaN(pending)) {
-            showToast('Please fill all fields', 'error');
+        if (isNaN(amount) || isNaN(paid) || isNaN(pending)) {
+            showToast('Please fill all numeric fields', 'error');
             return;
         }
         const idx = feeRecords.findIndex(f => f.id === id);
         if (idx !== -1) {
-            feeRecords[idx] = { ...feeRecords[idx], studentId, feeType, amount, paid, pending, status };
+            feeRecords[idx] = { ...feeRecords[idx], studentId, feeType: finalFeeType, amount, paid, pending, status };
             showToast('Fee record updated', 'success');
             renderFees();
             renderDashboard();
@@ -751,8 +843,15 @@ function deleteFee(id) {
     }
 }
 
+// ============================================================
+// ADD FEE - Updated with dropdown & Others conditional
+// ============================================================
+
 function showAddFeeModal() {
     const studentOptions = students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    const feeTypeOptions = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others']
+        .map(opt => `<option value="${opt}">${opt}</option>`).join('');
+
     openModal('Add Fee Record', `
         <div class="form-group">
             <label>Student</label>
@@ -760,7 +859,11 @@ function showAddFeeModal() {
         </div>
         <div class="form-group">
             <label>Fee Type</label>
-            <input type="text" id="addFeeType" placeholder="e.g., Tuition" />
+            <select id="addFeeType">${feeTypeOptions}</select>
+        </div>
+        <div class="form-group" id="addCustomFeeGroup" style="display:none;">
+            <label>Custom Fee Description</label>
+            <input type="text" id="addCustomFee" placeholder="Enter custom fee description" />
         </div>
         <div class="form-group">
             <label>Amount (₹)</label>
@@ -784,19 +887,29 @@ function showAddFeeModal() {
         </div>
     `, 'Add Fee', () => {
         const studentId = parseInt(document.getElementById('addFeeStudent').value);
-        const feeType = document.getElementById('addFeeType').value.trim();
+        const feeTypeSelect = document.getElementById('addFeeType');
+        const feeType = feeTypeSelect.value;
+        let finalFeeType = feeType;
+        if (feeType === 'Others') {
+            const custom = document.getElementById('addCustomFee').value.trim();
+            if (!custom) {
+                showToast('Please enter a custom fee description', 'error');
+                return;
+            }
+            finalFeeType = custom;
+        }
         const amount = parseFloat(document.getElementById('addFeeAmount').value);
         const paid = parseFloat(document.getElementById('addFeePaid').value) || 0;
         const pending = parseFloat(document.getElementById('addFeePending').value) || 0;
         const status = document.getElementById('addFeeStatus').value;
-        if (!feeType || isNaN(amount)) {
-            showToast('Please fill all fields', 'error');
+        if (isNaN(amount)) {
+            showToast('Please enter a valid amount', 'error');
             return;
         }
         const newFee = {
             id: idCounter.fee++,
             studentId,
-            feeType,
+            feeType: finalFeeType,
             amount,
             paid,
             pending,
