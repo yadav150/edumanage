@@ -92,7 +92,7 @@ function openModal(title, bodyHTML, confirmText = 'Confirm', callback) {
     modalOverlay.classList.add('active');
 
     // If this is the add teacher form, set up conditional logic after DOM render
-    if (title.includes('Teacher')) {
+    if (title.includes('Teacher') || title.includes('Staff')) {
         setTimeout(() => setupTeacherConditionalLogic(), 50);
     }
 }
@@ -117,21 +117,45 @@ function getStudentClass(id) {
 // ============================================================
 
 function setupTeacherConditionalLogic() {
-    const roleSelect = document.getElementById('addStaffRole');
-    const subjectGroup = document.getElementById('subjectGroup');
-    if (!roleSelect || !subjectGroup) return;
-
-    function toggleSubjectField() {
-        if (roleSelect.value === 'Subject Teacher') {
-            subjectGroup.style.display = 'block';
-            subjectGroup.style.animation = 'fadeIn 250ms ease';
+    // For Add form
+    const addDesignation = document.getElementById('addStaffDesignation');
+    const addSubjectGroup = document.getElementById('addSubjectGroup');
+    if (addDesignation && addSubjectGroup) {
+        addDesignation.addEventListener('change', function() {
+            if (this.value === 'Subject Teacher') {
+                addSubjectGroup.style.display = 'block';
+                addSubjectGroup.style.animation = 'fadeIn 250ms ease';
+            } else {
+                addSubjectGroup.style.display = 'none';
+            }
+        });
+        // Trigger initially based on default selection
+        if (addDesignation.value === 'Subject Teacher') {
+            addSubjectGroup.style.display = 'block';
         } else {
-            subjectGroup.style.display = 'none';
+            addSubjectGroup.style.display = 'none';
         }
     }
 
-    roleSelect.addEventListener('change', toggleSubjectField);
-    toggleSubjectField();
+    // For Edit form
+    const editDesignation = document.getElementById('editStaffDesignation');
+    const editSubjectGroup = document.getElementById('editSubjectGroup');
+    if (editDesignation && editSubjectGroup) {
+        editDesignation.addEventListener('change', function() {
+            if (this.value === 'Subject Teacher') {
+                editSubjectGroup.style.display = 'block';
+                editSubjectGroup.style.animation = 'fadeIn 250ms ease';
+            } else {
+                editSubjectGroup.style.display = 'none';
+            }
+        });
+        // Trigger on load based on current value
+        if (editDesignation.value === 'Subject Teacher') {
+            editSubjectGroup.style.display = 'block';
+        } else {
+            editSubjectGroup.style.display = 'none';
+        }
+    }
 }
 
 // ============================================================
@@ -534,7 +558,7 @@ function showAddStaffModal() {
             <label>Designation</label>
             <select id="addStaffDesignation">${designationOptions}</select>
         </div>
-        <div class="form-group" id="subjectGroup" style="display:none;">
+        <div class="form-group" id="addSubjectGroup" style="display:none;">
             <label>Subject</label>
             <select id="addStaffSubject">${subjectOptions}</select>
         </div>
