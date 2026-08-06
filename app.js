@@ -799,12 +799,12 @@ function showReceipt(id) {
     const statusClass = fee.status === 'paid' ? 'status-paid' : (fee.status === 'pending' ? 'status-pending' : 'status-overdue');
 
     openModal('Fee Receipt', `
-        <div class="receipt-wrapper" style="font-family: 'Inter', sans-serif; padding: 0.25rem 0;">
+        <div class="receipt-wrapper">
             <!-- School Header -->
-            <div style="text-align: center; border-bottom: 2px solid #3b82f6; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
-                <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin: 0;">${SCHOOL_INFO.name}</h2>
-                <p style="font-size: 0.85rem; color: #475569; margin: 0.2rem 0;">${SCHOOL_INFO.address}</p>
-                <p style="font-size: 0.8rem; color: #64748b; margin: 0.2rem 0;">
+            <div class="school-header">
+                <h2 class="school-name">${SCHOOL_INFO.name}</h2>
+                <p class="school-address">${SCHOOL_INFO.address}</p>
+                <p class="school-contact">
                     <strong>School Code:</strong> ${SCHOOL_INFO.code} &nbsp;|&nbsp;
                     <strong>Phone:</strong> ${SCHOOL_INFO.phone} &nbsp;|&nbsp;
                     <strong>Email:</strong> ${SCHOOL_INFO.email} &nbsp;|&nbsp;
@@ -813,13 +813,13 @@ function showReceipt(id) {
             </div>
 
             <!-- Receipt Title -->
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 600; color: #334155; margin: 0;">Fee Receipt</h3>
-                <span style="font-size: 0.8rem; color: #64748b; background: #f1f5f9; padding: 0.2rem 0.6rem; border-radius: 4px;"># ${receiptNumber}</span>
+            <div class="receipt-title">
+                <h3>Fee Receipt</h3>
+                <span class="receipt-number"># ${receiptNumber}</span>
             </div>
 
             <!-- Student & Fee Details -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; background: #f8fafc; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 0.75rem; font-size: 0.9rem;">
+            <div class="receipt-details-grid">
                 <div><strong>Student:</strong> ${name}</div>
                 <div><strong>Class:</strong> ${studentClass}</div>
                 <div><strong>Fee Type:</strong> ${fee.feeType}</div>
@@ -831,14 +831,15 @@ function showReceipt(id) {
             </div>
 
             <!-- Footer -->
-            <div style="border-top: 1px dashed #cbd5e1; padding-top: 0.5rem; text-align: center; font-size: 0.7rem; color: #94a3b8;">
+            <div class="receipt-footer">
                 This is a system‑generated receipt. No signature required.
                 <br />Thank you for your payment.
             </div>
 
             <!-- Print Button -->
-            <div style="text-align: right; margin-top: 0.75rem;">
+            <div class="print-btn-wrap">
                 <button onclick="window.print()" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.3rem 0.8rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M18 9H6"/><path d="M18 5v4H6V5"/><rect x="6" y="13" width="12" height="8"/><path d="M18 17h-4"/><path d="M10 17h-2"/></svg>
                     Print Receipt
                 </button>
             </div>
@@ -846,6 +847,11 @@ function showReceipt(id) {
     `, 'Close', () => {
         closeModal();
     });
+
+    // Override the confirm button to just close (since we have a print button)
+    modalConfirm.textContent = 'Close';
+    modalCallback = () => { closeModal(); };
+}
 
     // Override the confirm button to just close (since we have a print button)
     modalConfirm.textContent = 'Close';
