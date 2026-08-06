@@ -1,281 +1,333 @@
 /* ============================================================
-   RECEIPT OVERLAY & MODAL
+   RECEIPT STYLES
    ============================================================ */
-.receipt-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 5000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-}
 
-.receipt-overlay.active {
-    display: flex;
-}
-
-.receipt-modal {
-    background: white;
-    border-radius: 12px;
-    max-width: 800px;
-    width: 100%;
-    max-height: 95vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    padding: 1.5rem;
-    animation: fadeIn 300ms ease;
-}
-
-.receipt-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.receipt-actions .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* ============================================================
-   RECEIPT CONTENT (A4 LAYOUT)
-   ============================================================ */
 .receipt-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0.5rem;
+}
+
+.receipt-paper {
     background: white;
-    padding: 2rem 2.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-family: 'Inter', sans-serif;
-    color: #1e293b;
-    line-height: 1.6;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 2.5rem 2.5rem 2rem;
+    position: relative;
+    border: 1px solid var(--gray-200);
 }
 
 /* Receipt Header */
 .receipt-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 3px solid #3b82f6;
-    padding-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--gray-200);
+    padding-bottom: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
-.receipt-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+.receipt-header .school-name {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--gray-900);
+    letter-spacing: 0.5px;
 }
 
-.receipt-brand svg {
-    flex-shrink: 0;
+.receipt-header .school-address {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+    margin-top: 0.15rem;
 }
 
-.receipt-brand h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #0f172a;
+.receipt-header .school-email {
+    font-size: 0.8rem;
+    color: var(--gray-400);
 }
 
 .receipt-title {
-    text-align: right;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 2px;
+    margin: 0.5rem 0 0.25rem;
+    text-transform: uppercase;
 }
 
-.receipt-title h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #3b82f6;
-    letter-spacing: 0.05em;
-}
-
-.receipt-title .receipt-number {
-    font-size: 0.85rem;
-    color: #64748b;
-}
-
-/* Receipt Details Grid */
-.receipt-details {
+/* Receipt Info Grid */
+.receipt-info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem 2rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background: #f8fafc;
-    border-radius: 8px;
+    gap: 0.75rem 2rem;
+    background: var(--gray-50);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--gray-200);
 }
 
-.receipt-details .detail-item {
+.receipt-info-item {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 0.2rem 0;
 }
 
-.receipt-details .detail-item .label {
-    font-size: 0.75rem;
+.receipt-info-item .label {
     font-weight: 600;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    color: var(--gray-600);
 }
 
-.receipt-details .detail-item .value {
+.receipt-info-item .value {
+    color: var(--gray-800);
     font-weight: 500;
-    color: #1e293b;
 }
 
-/* Receipt Table */
-.receipt-table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
+/* Student Details */
+.receipt-student-details {
+    background: #f0f7ff;
+    padding: 0.9rem 1.25rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--primary);
+    margin-bottom: 1.25rem;
+}
+
+.receipt-student-details .student-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-500);
+    font-weight: 600;
+}
+
+.receipt-student-details .student-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.receipt-student-details .student-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+}
+
+.receipt-student-details .student-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Fee Breakdown Table */
+.receipt-table-wrap {
+    margin: 1.25rem 0;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
 }
 
 .receipt-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .receipt-table th {
-    background: #f1f5f9;
-    color: #334155;
-    font-weight: 600;
+    background: var(--gray-100);
+    padding: 0.6rem 1rem;
     text-align: left;
-    padding: 0.6rem 0.75rem;
-    border-bottom: 2px solid #e2e8f0;
+    font-weight: 600;
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .receipt-table td {
-    padding: 0.6rem 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-800);
 }
 
-.receipt-table tfoot td {
+.receipt-table tr:last-child td {
     border-bottom: none;
-    padding-top: 0.75rem;
+}
+
+.receipt-table .total-row td {
+    font-weight: 700;
+    background: var(--gray-50);
+    border-top: 2px solid var(--gray-300);
+    font-size: 0.95rem;
+}
+
+.receipt-table .total-row .amount {
+    font-size: 1.05rem;
+    color: var(--primary-dark);
+}
+
+/* Payment Summary */
+.receipt-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 2rem;
+    background: var(--gray-50);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    margin: 1.25rem 0;
+    border: 1px solid var(--gray-200);
+}
+
+.receipt-summary-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 0.15rem 0;
+}
+
+.receipt-summary-item .label {
     font-weight: 600;
+    color: var(--gray-600);
 }
 
-.receipt-table .text-right {
-    text-align: right;
+.receipt-summary-item .value {
+    color: var(--gray-800);
+    font-weight: 500;
 }
 
-/* Receipt Status Badge */
-.receipt-status {
-    display: inline-block;
-    padding: 0.2rem 0.8rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: capitalize;
+.receipt-summary-item .value.paid {
+    color: var(--green);
+    font-weight: 700;
 }
 
-.receipt-status.paid {
-    background: #dcfce7;
-    color: #166534;
+/* Authentication */
+.receipt-auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 2px dashed var(--gray-300);
 }
 
-.receipt-status.pending {
-    background: #fef3c7;
-    color: #92400e;
+.receipt-auth .auth-line {
+    border-bottom: 1px solid var(--gray-400);
+    height: 1.8rem;
+    margin-top: 0.15rem;
 }
 
-.receipt-status.overdue {
-    background: #fee2e2;
-    color: #991b1b;
+.receipt-auth .auth-label {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
+.receipt-auth .auth-signature {
+    font-size: 0.85rem;
+    color: var(--gray-700);
 }
 
 /* Receipt Footer */
 .receipt-footer {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--gray-400);
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Print / Action Buttons */
+.receipt-actions {
     display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    color: #64748b;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
 }
 
-.receipt-footer .signature {
-    font-style: italic;
+.receipt-actions .btn {
+    min-width: 120px;
+    justify-content: center;
 }
 
-/* ============================================================
-   PRINT STYLES
-   ============================================================ */
+/* ===== PRINT STYLES ===== */
 @media print {
-    body * {
-        visibility: hidden;
-    }
-    .receipt-overlay,
-    .receipt-modal,
-    .receipt-container,
-    .receipt-container * {
-        visibility: visible !important;
-    }
-    .receipt-overlay {
-        position: static;
-        background: white;
-        padding: 0;
-        display: block !important;
-    }
-    .receipt-modal {
-        max-width: 100%;
-        box-shadow: none;
-        padding: 0;
-        border-radius: 0;
-        overflow: visible;
-    }
-    .receipt-actions {
+    .receipt-actions,
+    .modal-close,
+    .modal-footer,
+    .topbar,
+    .sidebar,
+    .overlay {
         display: none !important;
     }
+
+    .modal-overlay {
+        position: static !important;
+        opacity: 1 !important;
+        pointer-events: all !important;
+        background: white !important;
+    }
+
+    .modal {
+        transform: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        max-height: 100% !important;
+        overflow: visible !important;
+    }
+
+    .receipt-paper {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 1.5rem !important;
+    }
+
     .receipt-container {
-        border: none;
-        padding: 0.5in;
-        margin: 0 auto;
-        width: 100%;
-        max-width: 210mm;
-        min-height: 297mm;
-        box-shadow: none;
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    body {
+        background: white !important;
     }
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+/* Responsive */
 @media (max-width: 640px) {
-    .receipt-modal {
-        padding: 1rem;
+    .receipt-paper {
+        padding: 1.25rem 1rem;
     }
-    .receipt-container {
-        padding: 1rem 1.25rem;
-    }
-    .receipt-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    .receipt-title {
-        text-align: left;
-        width: 100%;
-    }
-    .receipt-details {
+
+    .receipt-info-grid,
+    .receipt-summary {
         grid-template-columns: 1fr;
-        gap: 0.5rem;
+        gap: 0.25rem;
     }
+
+    .receipt-auth {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .receipt-header .school-name {
+        font-size: 1.25rem;
+    }
+
+    .receipt-table-wrap {
+        font-size: 0.75rem;
+    }
+
     .receipt-table th,
     .receipt-table td {
-        padding: 0.4rem 0.5rem;
-        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
     }
-    .receipt-footer {
+
+    .receipt-student-details .student-meta {
         flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
-    }
-    .receipt-actions {
-        justify-content: center;
+        gap: 0.2rem;
     }
 }
