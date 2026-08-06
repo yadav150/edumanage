@@ -52,6 +52,16 @@ let idCounter = {
     salary: 7,
 };
 
+// ===== SCHOOL INFORMATION (for receipts) =====
+const SCHOOL_INFO = {
+    name: 'Morning Glory English Academy',
+    address: 'Dikhlem Nepali Subba Gaon, West Karbi Anglong, Assam – 782248',
+    code: 'MGEA/2025/001',
+    phone: '+91 98765 43210',
+    email: 'info@mgea.edu.in',
+    website: 'www.mgea.edu.in'
+};
+
 // ============================================================
 // DOM REFS
 // ============================================================
@@ -773,117 +783,210 @@ function renderFees(filter = 'all', search = '') {
 function showReceipt(id) {
     const fee = feeRecords.find(f => f.id === id);
     if (!fee) return;
+
     const student = students.find(s => s.id === fee.studentId);
     const name = student ? student.name : 'Unknown';
-    openModal('Fee Receipt', `
-        <div style="text-align:center; padding: 0.5rem 0;">
-            <h3 style="margin-bottom: 0.25rem;">SchoolERP</h3>
-            <p style="color: var(--gray-500); font-size: 0.875rem;">Fee Receipt</p>
-            <hr style="margin: 1rem 0; border: 1px dashed var(--gray-300);" />
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; text-align:left; font-size:0.9rem;">
-                <div><strong>Student:</strong> ${name}</div>
-                <div><strong>Class:</strong> ${student ? student.class + student.section : 'N/A'}</div>
-                <div><strong>Fee Type:</strong> ${fee.feeType}</div>
-                <div><strong>Amount:</strong> ₹${fee.amount}</div>
-                <div><strong>Paid:</strong> ₹${fee.paid}</div>
-                <div><strong>Pending:</strong> ₹${fee.pending}</div>
-                <div><strong>Status:</strong> <span class="status-badge status-${fee.status}">${fee.status}</span></div>
-                <div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
+    const studentClass = student ? `${student.class}${student.section}` : 'N/A';
+
+    // Generate a unique receipt number
+    const receiptNumber = `RCP-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+    const date = new Date().toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+
+    const statusClass = fee.status === 'paid' ? 'status-paid' : (fee.status === 'pending' ? 'status-pending' : 'status-overdue');
+
+    // Build receipt HTML for the modal
+    const receiptHTML = `
+        <div class="receipt-wrapper" id="receiptContent">
+            <!-- School Header -->
+            <div class="school-header">
+                <h2 class="school-name">${SCHOOL_INFO.name}</h2>
+                <p class="school-address">${SCHOOL_INFO.address}</p>
+                <p class="school-contact">
+                    <strong>School Code:</strong> ${SCHOOL_INFO.code} &nbsp;|&nbsp;
+                    <strong>Phone:</strong> ${SCHOOL_INFO.phone} &nbsp;|&nbsp;
+                    <strong>Email:</strong> ${SCHOOL_INFO.email} &nbsp;|&nbsp;
+                    <strong>Web:</strong> ${SCHOOL_INFO.website}
+                </p>
             </div>
-            <hr style="margin: 1rem 0; border: 1px dashed var(--gray-300);" />
-            <p style="font-size:0.75rem; color:var(--gray-400);">This is a system-generated receipt.</p>
+
+            <!-- Receipt Title -->
+            <div class="receipt-title">
+                <h3>Fee Receipt</h3>
+                <span class="receipt-number"># ${receiptNumber}</span>
+            </div>
+
+            <!-- Student & Fee Details -->
+            <div class="receipt-details-grid">
+                <div><strong>Student:</strong> ${name}</div>
+                <div><strong>Class:</strong> ${studentClass}</div>
+                <div><strong>Fee Type:</strong> ${fee.feeType}</div>
+                <div><strong>Date:</strong> ${date}</div>
+                <div><strong>Amount:</strong> ₹${fee.amount.toLocaleString()}</div>
+                <div><strong>Paid:</strong> ₹${fee.paid.toLocaleString()}</div>
+                <div><strong>Pending:</strong> ₹${fee.pending.toLocaleString()}</div>
+                <div><strong>Status:</strong> <span class="status-badge ${statusClass}">${fee.status}</span></div>
+            </div>
+
+            <!-- Footer -->
+            <div class="receipt-footer">
+                This is a system‑generated receipt. No signature required.
+                <br />Thank you for your payment.
+            </div>
         </div>
-    `, 'Close', () => { closeModal(); });
+    `;
+
+    // Open modal with receipt and action buttons
+    openModal('Fee Receipt', `
+        ${receiptHTML}
+        <div class="receipt-actions" style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.75rem; border-top:1px solid var(--gray-200); padding-top:0.75rem;">
+            <button onclick="downloadReceiptPDF()" class="btn btn-primary" style="font-size:0.85rem; padding:0.4rem 1rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+                Download PDF
+            </button>
+            <button onclick="window.print()" class="btn btn-secondary" style="font-size:0.85rem; padding:0.4rem 1rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M18 9H6"/><path d="M18 5v4H6V5"/><rect x="6" y="13" width="12" height="8"/><path d="M18 17h-4"/><path d="M10 17h-2"/></svg>
+                Print
+            </button>
+        </div>
+    `, 'Close', () => {
+        closeModal();
+    });
+
+    // Override confirm button to just close
     modalConfirm.textContent = 'Close';
     modalCallback = () => { closeModal(); };
+
+    // Store receipt data globally for PDF download
+    window._receiptData = {
+        fee,
+        student,
+        name,
+        studentClass,
+        receiptNumber,
+        date,
+        statusClass,
+        receiptHTML
+    };
 }
+// ============================================================
+// DOWNLOAD RECEIPT AS PDF
+// ============================================================
 
-function editFee(id) {
-    const fee = feeRecords.find(f => f.id === id);
-    if (!fee) return;
+function downloadReceiptPDF() {
+    const data = window._receiptData;
+    if (!data) return;
 
-    const studentOptions = students.map(s => `<option value="${s.id}" ${s.id === fee.studentId ? 'selected' : ''}>${s.name}</option>`).join('');
+    const { fee, student, name, studentClass, receiptNumber, date, statusClass } = data;
 
-    const predefined = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others'];
-    let selectedType = fee.feeType;
-    let showOthers = false;
-    let customValue = '';
-    if (predefined.includes(selectedType)) {
-        if (selectedType === 'Others') {
-            showOthers = true;
-        }
-    } else {
-        selectedType = 'Others';
-        customValue = fee.feeType;
-        showOthers = true;
-    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = 210;
+    const margin = 15;
+    let y = 20;
 
-    const feeTypeOptions = ['Admission Fee', 'Monthly Fee', 'Annual Fee', 'Examination Fee', 'Others']
-        .map(opt => `<option value="${opt}" ${opt === selectedType ? 'selected' : ''}>${opt}</option>`).join('');
+    // --- School Header ---
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 41, 59);
+    doc.text(SCHOOL_INFO.name, pageWidth / 2, y, { align: 'center' });
+    y += 7;
 
-    openModal('Edit Fee Record', `
-        <div class="form-group">
-            <label>Student</label>
-            <select id="editFeeStudent">${studentOptions}</select>
-        </div>
-        <div class="form-group">
-            <label>Fee Type</label>
-            <select id="editFeeType">${feeTypeOptions}</select>
-        </div>
-        <div class="form-group" id="editCustomFeeGroup" style="${showOthers ? 'display:block;' : 'display:none;'}">
-            <label>Custom Fee Description</label>
-            <input type="text" id="editCustomFee" placeholder="Enter custom fee description" value="${customValue}" />
-        </div>
-        <div class="form-group">
-            <label>Amount (₹)</label>
-            <input type="number" id="editFeeAmount" value="${fee.amount}" />
-        </div>
-        <div class="form-group">
-            <label>Paid (₹)</label>
-            <input type="number" id="editFeePaid" value="${fee.paid}" />
-        </div>
-        <div class="form-group">
-            <label>Pending (₹)</label>
-            <input type="number" id="editFeePending" value="${fee.pending}" />
-        </div>
-        <div class="form-group">
-            <label>Status</label>
-            <select id="editFeeStatus">
-                <option value="paid" ${fee.status === 'paid' ? 'selected' : ''}>Paid</option>
-                <option value="pending" ${fee.status === 'pending' ? 'selected' : ''}>Pending</option>
-                <option value="overdue" ${fee.status === 'overdue' ? 'selected' : ''}>Overdue</option>
-            </select>
-        </div>
-    `, 'Update', () => {
-        const studentId = parseInt(document.getElementById('editFeeStudent').value);
-        const feeTypeSelect = document.getElementById('editFeeType');
-        const feeType = feeTypeSelect.value;
-        let finalFeeType = feeType;
-        if (feeType === 'Others') {
-            const custom = document.getElementById('editCustomFee').value.trim();
-            if (!custom) {
-                showToast('Please enter a custom fee description', 'error');
-                return;
-            }
-            finalFeeType = custom;
-        }
-        const amount = parseFloat(document.getElementById('editFeeAmount').value);
-        const paid = parseFloat(document.getElementById('editFeePaid').value);
-        const pending = parseFloat(document.getElementById('editFeePending').value);
-        const status = document.getElementById('editFeeStatus').value;
-        if (isNaN(amount) || isNaN(paid) || isNaN(pending)) {
-            showToast('Please fill all numeric fields', 'error');
-            return;
-        }
-        const idx = feeRecords.findIndex(f => f.id === id);
-        if (idx !== -1) {
-            feeRecords[idx] = { ...feeRecords[idx], studentId, feeType: finalFeeType, amount, paid, pending, status };
-            showToast('Fee record updated', 'success');
-            renderFees();
-            renderDashboard();
-            closeModal();
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105);
+    doc.text(SCHOOL_INFO.address, pageWidth / 2, y, { align: 'center' });
+    y += 5;
+
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`School Code: ${SCHOOL_INFO.code}  |  Phone: ${SCHOOL_INFO.phone}  |  Email: ${SCHOOL_INFO.email}  |  Web: ${SCHOOL_INFO.website}`, pageWidth / 2, y, { align: 'center' });
+    y += 8;
+
+    // Horizontal line
+    doc.setDrawColor(59, 130, 246);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 6;
+
+    // --- Receipt Title ---
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(51, 65, 85);
+    doc.text('Fee Receipt', margin, y);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text(`# ${receiptNumber}`, pageWidth - margin, y, { align: 'right' });
+    y += 8;
+
+    // --- Fee Details ---
+    const rows = [
+        ['Student', name],
+        ['Class', studentClass],
+        ['Fee Type', fee.feeType],
+        ['Date', date],
+        ['Amount', `₹${fee.amount.toLocaleString()}`],
+        ['Paid', `₹${fee.paid.toLocaleString()}`],
+        ['Pending', `₹${fee.pending.toLocaleString()}`],
+        ['Status', fee.status.toUpperCase()]
+    ];
+
+    const col1X = margin;
+    const col2X = 70;
+    const rowHeight = 7;
+    let rowY = y;
+
+    // Background for the whole table
+    doc.setFillColor(248, 250, 252);
+    doc.rect(margin, rowY - 2, pageWidth - 2 * margin, rows.length * rowHeight + 4, 'F');
+
+    rows.forEach((row, idx) => {
+        const currentY = rowY + idx * rowHeight;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.text(row[0], col1X + 2, currentY + 5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(51, 65, 85);
+        doc.text(row[1], col2X, currentY + 5);
+
+        // Status badge styling
+        if (row[0] === 'Status') {
+            const statusColor = fee.status === 'paid' ? [34, 197, 94] : (fee.status === 'pending' ? [234, 179, 8] : [239, 68, 68]);
+            doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+            doc.setTextColor(255, 255, 255);
+            const textWidth = doc.getTextWidth(row[1]) + 4;
+            const rectX = col2X - 1;
+            const rectY = currentY + 1;
+            doc.roundedRect(rectX, rectY, textWidth + 6, 6, 1.5, 1.5, 'F');
+            doc.text(row[1], rectX + 3, currentY + 5);
         }
     });
+
+    y = rowY + rows.length * rowHeight + 6;
+
+    // --- Footer ---
+    y += 4;
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 5;
+
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(148, 163, 184);
+    doc.text('This is a system‑generated receipt. No signature required.', pageWidth / 2, y, { align: 'center' });
+    y += 4;
+    doc.text('Thank you for your payment.', pageWidth / 2, y, { align: 'center' });
+
+    // --- Save PDF ---
+    const fileName = `Receipt_${name.replace(/\s/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+    doc.save(fileName);
+    showToast('Receipt PDF downloaded successfully', 'success');
 }
 
 function deleteFee(id) {
