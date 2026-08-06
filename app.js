@@ -326,6 +326,30 @@ function renderDashboard() {
 // ============================================================
 
 function renderStudents(filter = 'all', search = '') {
+        // --- Student Stats ---
+    const totalStudents = students.length;
+    const paidCount = students.filter(s => s.feeStatus === 'paid').length;
+    const pendingCount = students.filter(s => s.feeStatus === 'pending').length;
+    const overdueCount = students.filter(s => s.feeStatus === 'overdue').length;
+
+    document.getElementById('studentStatsGrid').innerHTML = `
+        <div class="stat-card">
+            <span class="stat-label">Total Students</span>
+            <span class="stat-value">${totalStudents}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Fee Paid</span>
+            <span class="stat-value">${paidCount}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Fee Pending</span>
+            <span class="stat-value">${pendingCount}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Overdue</span>
+            <span class="stat-value">${overdueCount}</span>
+        </div>
+    `;
     const tbody = document.getElementById('studentTableBody');
     let list = students;
     if (filter !== 'all') {
@@ -490,6 +514,25 @@ function showAddStudentModal() {
 // ============================================================
 
 function renderStaff(filter = 'all', search = '') {
+        // --- Staff Stats ---
+    const totalTeachers = teachers.filter(t => t.role === 'teacher').length;
+    const totalStaff = teachers.filter(t => t.role === 'staff').length;
+    const totalEmployees = teachers.length;
+
+    document.getElementById('staffStatsGrid').innerHTML = `
+        <div class="stat-card">
+            <span class="stat-label">Total Teachers</span>
+            <span class="stat-value">${totalTeachers}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Staff</span>
+            <span class="stat-value">${totalStaff}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Employees</span>
+            <span class="stat-value">${totalEmployees}</span>
+        </div>
+    `;
     const tbody = document.getElementById('staffTableBody');
     let list = teachers;
     if (filter !== 'all') {
