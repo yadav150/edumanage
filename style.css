@@ -921,3 +921,12 @@ select {
         grid-template-columns: 1fr 1fr;
     }
 }
+/*-------------salary-----*/
+.stats-grid,
+.fee-stats-grid,
+.salary-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
